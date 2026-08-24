@@ -45,7 +45,6 @@
   ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:10px; }
   img, svg{ max-width:100%; }
 
-  /* ---------- MENU TOGGLE (fixo, sempre visível) ---------- */
   .menu-btn{
     position:fixed; top:22px; left:22px; z-index:200;
     width:46px; height:46px; border-radius:12px; border:1px solid var(--border);
@@ -61,7 +60,6 @@
   }
   .backdrop.show{ opacity:1; pointer-events:auto; }
 
-  /* ---------- SIDEBAR (fechada por padrão, abre por cima do conteúdo) ---------- */
   .sidebar{
     position:fixed; top:0; left:0; height:100vh; width:var(--sidebar-w);
     background:var(--surface-2); border-right:1px solid var(--border);
@@ -77,7 +75,7 @@
   .logo .mz{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
   nav ul{ list-style:none; display:flex; flex-direction:column; gap:2px; padding:0 14px; }
   nav a{
-    display:flex; align-items:center; gap:12px; text-decration:none; text-decoration:none; color:var(--text-dim);
+    display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text-dim);
     font-weight:500; font-size:.95rem; padding:11px 14px; border-radius:10px; transition:.25s ease;
   }
   nav a:hover{ color:var(--text); background:var(--surface); }
@@ -95,12 +93,10 @@
   .theme-toggle button svg{ width:16px; height:16px; fill:currentColor; }
   .theme-toggle button.active{ background:var(--grad); color:#fff; }
 
-  /* ---------- MAIN (largura total, sidebar é overlay) ---------- */
   main{ width:100%; padding:0 60px; }
   section{ padding:100px 0; max-width:820px; width:100%; }
   .about p, h1, h2.tagline{ overflow-wrap:break-word; word-break:break-word; }
 
-  /* ---------- HERO ---------- */
   .hero{ padding-top:150px; min-height:70vh; display:flex; flex-direction:column; justify-content:center; }
   .eyebrow{
     display:inline-block; font-weight:600; font-size:.85rem;
@@ -123,12 +119,10 @@
   }
   @keyframes shimmer{ to{ background-position:-200% center; } }
 
-  /* ---------- QUEM SOMOS ---------- */
   h3.heading{ font-family:'Sora', sans-serif; font-weight:700; font-size:1.5rem; margin-bottom:16px; }
   .about p{ font-size:1.1rem; line-height:1.75; color:var(--text-dim); max-width:640px; }
   .about strong{ color:var(--text); font-weight:600; }
 
-  /* ---------- NOVIDADES ---------- */
   .news-track{
     display:flex; gap:20px; overflow-x:auto; padding:12px 4px 4px; margin-top:16px;
     scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none;
@@ -151,6 +145,8 @@
   }
   .btn:hover{ background:var(--grad); border-color:transparent; color:#fff; }
 
+  .news-empty, .news-loading{ color:var(--text-dim); font-size:.95rem; padding:12px 4px; }
+
   .arrows{ display:flex; justify-content:center; gap:10px; margin-top:20px; }
   .arrow-btn{
     all:unset; width:42px; height:42px; border-radius:50%; border:1px solid var(--border);
@@ -160,7 +156,6 @@
   .arrow-btn:hover{ background:var(--grad); border-color:transparent; color:#fff; }
   .arrow-btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2; }
 
-  /* ---------- FOOTER ---------- */
   footer{
     border-top:1px solid var(--border); padding:34px 60px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
@@ -236,79 +231,7 @@
   <section class="news" id="novidades">
     <h3 class="heading">Novidades</h3>
     <div class="news-track" id="news-track">
-
-      <article class="card">
-        <div class="card-img">
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#9B5CFF"/><stop offset="100%" stop-color="#4EA1FF"/>
-            </linearGradient></defs>
-            <rect width="300" height="150" fill="url(#g1)"/>
-            <circle cx="230" cy="30" r="60" fill="#ffffff22"/>
-            <circle cx="60" cy="130" r="70" fill="#00000022"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <h4>Bot para WhatsApp</h4>
-          <p>Automatize conversas e atendimentos com respostas rápidas e inteligentes.</p>
-          <a href="#" class="btn">Saiba mais</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-img">
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#9B5CFF"/>
-            </linearGradient></defs>
-            <rect width="300" height="150" fill="url(#g2)"/>
-            <rect x="40" y="40" width="220" height="16" rx="8" fill="#ffffff33"/>
-            <rect x="40" y="70" width="150" height="16" rx="8" fill="#ffffff33"/>
-            <rect x="40" y="100" width="180" height="16" rx="8" fill="#ffffff33"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <h4>Painel de automação</h4>
-          <p>Dashboard simples para acompanhar tarefas e processos automáticos em tempo real.</p>
-          <a href="#" class="btn">Saiba mais</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-img">
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#9B5CFF"/><stop offset="100%" stop-color="#1F1F24"/>
-            </linearGradient></defs>
-            <rect width="300" height="150" fill="url(#g3)"/>
-            <polygon points="0,150 90,60 150,110 220,40 300,90 300,150" fill="#ffffff22"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <h4>API de integração</h4>
-          <p>Conecte seus sistemas com uma API leve, documentada e fácil de manter.</p>
-          <a href="#" class="btn">Saiba mais</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-img">
-          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="g4" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#111114"/>
-            </linearGradient></defs>
-            <rect width="300" height="150" fill="url(#g4)"/>
-            <circle cx="150" cy="75" r="45" fill="none" stroke="#ffffff44" stroke-width="6"/>
-            <circle cx="150" cy="75" r="20" fill="#ffffff33"/>
-          </svg>
-        </div>
-        <div class="card-body">
-          <h4>Extensão para Chrome</h4>
-          <p>Uma extensão leve que agiliza tarefas repetitivas direto no navegador.</p>
-          <a href="#" class="btn">Saiba mais</a>
-        </div>
-      </article>
-
+      <div class="news-loading">Carregando novidades...</div>
     </div>
     <div class="arrows">
       <button class="arrow-btn" id="prev-btn" aria-label="Anterior">
@@ -344,7 +267,70 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+  // ====== CONFIGURAÇÃO DO SUPABASE ======
+  // Isso aqui não é segredo: a chave "publishable" foi feita pra ficar
+  // exposta no front-end. Quem te protege de verdade é o RLS lá no banco.
+  const SUPABASE_URL = 'https://fzrsoydztbljlqlcdlhr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_H3Gkk6LY4TnQx6gePO18Og_ZL_YxJpJ';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Cada "pattern" é uma receita de SVG decorativo, igual você já tinha.
+  // Assim o admin escolhe um estilo em vez de desenhar SVG na mão toda vez.
+  function cardSvg(pattern, from, to){
+    const defs = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${from}"/><stop offset="100%" stop-color="${to}"/>
+    </linearGradient></defs>`;
+    const bg = `<rect width="300" height="150" fill="url(#g)"/>`;
+    const shapes = {
+      circles: `<circle cx="230" cy="30" r="60" fill="#ffffff22"/><circle cx="60" cy="130" r="70" fill="#00000022"/>`,
+      bars: `<rect x="40" y="40" width="220" height="16" rx="8" fill="#ffffff33"/><rect x="40" y="70" width="150" height="16" rx="8" fill="#ffffff33"/><rect x="40" y="100" width="180" height="16" rx="8" fill="#ffffff33"/>`,
+      diagonal: `<polygon points="0,150 90,60 150,110 220,40 300,90 300,150" fill="#ffffff22"/>`,
+      ring: `<circle cx="150" cy="75" r="45" fill="none" stroke="#ffffff44" stroke-width="6"/><circle cx="150" cy="75" r="20" fill="#ffffff33"/>`
+    };
+    return `<svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">${defs}${bg}${shapes[pattern] || shapes.circles}</svg>`;
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  async function loadNovidades(){
+    const track = document.getElementById('news-track');
+    const { data, error } = await sb
+      .from('novidades')
+      .select('*')
+      .eq('published', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('Erro ao carregar novidades:', error);
+      track.innerHTML = '<div class="news-empty">Não foi possível carregar as novidades agora.</div>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      track.innerHTML = '<div class="news-empty">Nenhuma novidade publicada ainda.</div>';
+      return;
+    }
+
+    track.innerHTML = data.map(item => `
+      <article class="card">
+        <div class="card-img">${cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
+        <div class="card-body">
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.description)}</p>
+          <a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">Saiba mais</a>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  loadNovidades();
+
   const html = document.documentElement;
   const btnDark = document.getElementById('btn-dark');
   const btnLight = document.getElementById('btn-light');
@@ -356,7 +342,6 @@
   btnDark.addEventListener('click', () => setTheme('dark'));
   btnLight.addEventListener('click', () => setTheme('light'));
 
-  // menu sidebar (fechado por padrão, abre em cima do conteúdo)
   const sidebar = document.getElementById('sidebar');
   const menuBtn = document.getElementById('menu-btn');
   const backdrop = document.getElementById('backdrop');
@@ -368,13 +353,11 @@
   backdrop.addEventListener('click', () => toggleMenu(false));
   document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', () => toggleMenu(false)));
 
-  // setas do carrossel (além de arrastar)
   const track = document.getElementById('news-track');
   const cardWidth = 300;
   document.getElementById('prev-btn').addEventListener('click', () => track.scrollBy({ left: -cardWidth, behavior: 'smooth' }));
   document.getElementById('next-btn').addEventListener('click', () => track.scrollBy({ left: cardWidth, behavior: 'smooth' }));
 
-  // destaca item ativo da sidebar ao rolar
   const sections = document.querySelectorAll('section[id]');
   const links = document.querySelectorAll('nav a');
   const observer = new IntersectionObserver((entries) => {
