@@ -3,34 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>nova() — estúdio de código</title>
+<title>MzDevSpace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0A0B12;
-    --bg-2:#12131E;
-    --surface:#161826;
-    --surface-2:#1D2033;
-    --border:#2A2D45;
-    --text:#ECEBFA;
-    --text-dim:#8C8AB0;
-    --purple:#8B5CF6;
+    --bg:#000000;
+    --surface:#0C0C10;
+    --surface-2:#141419;
+    --border:#232329;
+    --text:#F5F5F7;
+    --text-dim:#9A9AA4;
+    --purple:#9B5CFF;
     --blue:#4EA1FF;
     --grad: linear-gradient(120deg, var(--purple), var(--blue));
-    --shadow: 0 20px 60px -20px rgba(139,92,246,.35);
-    --radius: 14px;
-    --sidebar-w: 260px;
+    --shadow: 0 20px 50px -18px rgba(155,92,255,.4);
+    --radius: 16px;
+    --sidebar-w: 250px;
   }
   html[data-theme="light"]{
-    --bg:#EBEAFB;
-    --bg-2:#E2E1FA;
-    --surface:#F5F4FF;
+    --bg:#EDEBFB;
+    --bg-2:#E3E1F9;
+    --surface:#F6F5FF;
     --surface-2:#FFFFFF;
-    --border:#D3D1F0;
-    --text:#1B1B2E;
-    --text-dim:#5E5C82;
-    --shadow: 0 20px 60px -25px rgba(78,161,255,.35);
+    --border:#D6D3F2;
+    --text:#17161F;
+    --text-dim:#5F5D78;
+    --shadow: 0 20px 50px -22px rgba(78,161,255,.35);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -39,7 +38,6 @@
     color:var(--text);
     font-family:'Inter', sans-serif;
     transition:background .4s ease, color .4s ease;
-    overflow-x:hidden;
   }
   ::selection{ background:var(--purple); color:#fff; }
   ::-webkit-scrollbar{ width:10px; }
@@ -47,75 +45,74 @@
 
   /* ---------- AURORA BACKGROUND ---------- */
   .aurora{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
-  .blob{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.35; }
-  .blob-1{ width:480px; height:480px; background:var(--purple); top:-100px; left:20%; animation: float1 26s ease-in-out infinite alternate; }
-  .blob-2{ width:420px; height:420px; background:var(--blue); bottom:-120px; right:5%; animation: float2 30s ease-in-out infinite alternate; }
-  .blob-3{ width:300px; height:300px; background:var(--purple); top:40%; right:30%; opacity:.2; animation: float1 22s ease-in-out infinite alternate-reverse; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(100px); opacity:.28; }
+  .blob-1{ width:460px; height:460px; background:var(--purple); top:-120px; left:25%; animation: float1 26s ease-in-out infinite alternate; }
+  .blob-2{ width:420px; height:420px; background:var(--blue); bottom:-140px; right:5%; animation: float2 30s ease-in-out infinite alternate; }
   @keyframes float1{ from{ transform:translate(0,0) scale(1);} to{ transform:translate(60px,80px) scale(1.15);} }
   @keyframes float2{ from{ transform:translate(0,0) scale(1);} to{ transform:translate(-70px,-50px) scale(1.1);} }
 
-  /* ---------- LAYOUT ---------- */
-  .app{ position:relative; z-index:1; display:flex; min-height:100vh; }
+  /* ---------- LAYOUT (grid corrige qualquer desalinhamento) ---------- */
+  .app{
+    position:relative; z-index:1; min-height:100vh;
+    display:grid; grid-template-columns:var(--sidebar-w) 1fr;
+  }
 
-  /* ---------- SIDEBAR (estilo IDE) ---------- */
+  /* ---------- SIDEBAR ---------- */
   .sidebar{
-    width:var(--sidebar-w); flex-shrink:0; position:fixed; top:0; left:0; height:100vh;
+    grid-column:1; position:sticky; top:0; height:100vh; align-self:start;
     background:var(--surface); border-right:1px solid var(--border);
-    display:flex; flex-direction:column; padding:24px 0; z-index:10;
+    display:flex; flex-direction:column; padding:28px 0;
     transition:background .4s ease, border-color .4s ease;
   }
   .logo{
-    font-family:'JetBrains Mono', monospace; font-weight:600; font-size:1.2rem;
-    padding:0 24px 24px; border-bottom:1px solid var(--border); margin-bottom:18px;
+    font-family:'Sora', sans-serif; font-weight:800; font-size:1.3rem;
+    padding:0 26px 26px; border-bottom:1px solid var(--border); margin-bottom:20px;
+    letter-spacing:-.01em;
   }
-  .logo span{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .nav-label{
-    font-family:'JetBrains Mono', monospace; font-size:.68rem; letter-spacing:.08em;
-    color:var(--text-dim); padding:0 24px; margin-bottom:8px; text-transform:uppercase;
-  }
-  nav ul{ list-style:none; }
+  .logo .mz{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  nav ul{ list-style:none; display:flex; flex-direction:column; gap:2px; padding:0 14px; }
   nav a{
-    display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text-dim);
-    font-family:'JetBrains Mono', monospace; font-size:.88rem; padding:9px 24px;
-    border-left:2px solid transparent; transition:.25s ease; position:relative;
+    display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text-dim);
+    font-family:'Inter', sans-serif; font-weight:500; font-size:.95rem; padding:11px 14px;
+    border-radius:10px; transition:.25s ease;
   }
   nav a:hover{ color:var(--text); background:var(--surface-2); }
-  nav a.active{ color:var(--text); border-left-color:var(--purple); background:var(--surface-2); }
-  nav a .dot{ width:6px; height:6px; border-radius:50%; background:var(--blue); opacity:.7; flex-shrink:0; }
+  nav a.active{ color:#fff; background:var(--grad); }
 
-  .sidebar-footer{ margin-top:auto; padding:0 24px; }
+  .sidebar-footer{ margin-top:auto; padding:0 20px; }
   .theme-toggle{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:100px;
-    padding:6px; cursor:pointer; font-family:'JetBrains Mono', monospace; font-size:.75rem;
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:100px; padding:5px;
   }
   .theme-toggle button{
-    all:unset; flex:1; text-align:center; padding:7px 8px; border-radius:100px; cursor:pointer;
-    color:var(--text-dim); transition:.25s ease;
+    all:unset; flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:9px 8px; border-radius:100px; cursor:pointer;
+    color:var(--text-dim); font-size:.82rem; font-weight:500; transition:.25s ease;
   }
+  .theme-toggle button svg{ width:16px; height:16px; fill:currentColor; }
   .theme-toggle button.active{ background:var(--grad); color:#fff; }
 
   /* ---------- MAIN ---------- */
-  main{ margin-left:var(--sidebar-w); flex:1; padding:0 60px; position:relative; }
-  section{ padding:120px 0; max-width:920px; }
+  main{ grid-column:2; padding:0 60px; }
+  section{ padding:110px 0; max-width:900px; }
 
   /* ---------- HERO ---------- */
-  .hero{ padding-top:140px; min-height:80vh; display:flex; flex-direction:column; justify-content:center; }
+  .hero{ padding-top:130px; min-height:78vh; display:flex; flex-direction:column; justify-content:center; }
   .eyebrow{
-    font-family:'JetBrains Mono', monospace; font-size:.8rem; color:var(--purple);
-    margin-bottom:18px; display:inline-block;
+    display:inline-block; font-family:'Inter', sans-serif; font-weight:600; font-size:.85rem;
+    color:var(--purple); margin-bottom:18px; letter-spacing:.02em;
   }
   h1{
-    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:clamp(2.4rem, 6vw, 4.6rem);
-    line-height:1.05; letter-spacing:-.02em;
+    font-family:'Sora', sans-serif; font-weight:800; font-size:clamp(2.4rem, 6vw, 4.4rem);
+    line-height:1.08; letter-spacing:-.02em;
     background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
     animation: drift 7s ease-in-out infinite;
   }
   @keyframes drift{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
   h2.tagline{
-    font-family:'JetBrains Mono', monospace; font-weight:500; font-size:clamp(1rem, 2vw, 1.3rem);
-    margin-top:22px; color:var(--text-dim);
-    background:linear-gradient(90deg, var(--text-dim) 0%, var(--purple) 20%, var(--blue) 40%, var(--text-dim) 60%);
+    font-family:'Sora', sans-serif; font-weight:600; font-size:clamp(1rem, 2vw, 1.3rem);
+    margin-top:20px;
+    background:linear-gradient(90deg, var(--text-dim) 0%, var(--purple) 25%, var(--blue) 50%, var(--text-dim) 75%);
     background-size:200% auto;
     -webkit-background-clip:text; background-clip:text; color:transparent;
     animation: shimmer 5s linear infinite;
@@ -124,69 +121,71 @@
 
   /* ---------- QUEM SOMOS ---------- */
   h3.heading{
-    font-family:'JetBrains Mono', monospace; font-size:.85rem; color:var(--purple);
-    margin-bottom:14px;
+    font-family:'Sora', sans-serif; font-weight:700; font-size:1.6rem; margin-bottom:16px;
   }
-  h3.heading::before{ content:"// "; color:var(--text-dim); }
-  .about p{
-    font-size:1.15rem; line-height:1.75; color:var(--text-dim); max-width:640px;
-  }
+  .about p{ font-size:1.12rem; line-height:1.75; color:var(--text-dim); max-width:640px; }
   .about strong{ color:var(--text); font-weight:600; }
 
   /* ---------- NOVIDADES ---------- */
+  .news-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .arrows{ display:flex; gap:8px; }
+  .arrow-btn{
+    all:unset; width:42px; height:42px; border-radius:50%; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text);
+    transition:.25s ease;
+  }
+  .arrow-btn:hover{ background:var(--grad); border-color:transparent; color:#fff; }
+  .arrow-btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2; }
+
   .news-track{
-    display:flex; gap:20px; overflow-x:auto; padding:10px 4px 30px; margin-top:30px;
-    scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
+    display:flex; gap:20px; overflow-x:auto; padding:12px 4px 30px; margin-top:16px;
+    scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
   .news-track::-webkit-scrollbar{ display:none; }
   .card{
-    scroll-snap-align:start; flex:0 0 300px; background:var(--surface); border:1px solid var(--border);
+    scroll-snap-align:start; flex:0 0 290px; background:var(--surface); border:1px solid var(--border);
     border-radius:var(--radius); overflow:hidden; transition:transform .3s ease, box-shadow .3s ease;
   }
   .card:hover{ transform:translateY(-6px); box-shadow:var(--shadow); }
-  .card-img{ height:150px; position:relative; overflow:hidden; }
+  .card-img{ height:150px; }
   .card-img svg{ width:100%; height:100%; display:block; }
   .card-body{ padding:20px; }
-  .card-body h4{ font-family:'Space Grotesk', sans-serif; font-size:1.1rem; margin-bottom:8px; }
+  .card-body h4{ font-family:'Sora', sans-serif; font-weight:700; font-size:1.08rem; margin-bottom:8px; }
   .card-body p{ font-size:.9rem; color:var(--text-dim); line-height:1.5; margin-bottom:16px; }
   .btn{
-    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:.8rem;
-    padding:8px 16px; border-radius:100px; border:1px solid var(--border); color:var(--text);
+    display:inline-block; font-family:'Inter', sans-serif; font-weight:600; font-size:.82rem;
+    padding:9px 18px; border-radius:100px; border:1px solid var(--border); color:var(--text);
     text-decoration:none; transition:.25s ease;
   }
   .btn:hover{ background:var(--grad); border-color:transparent; color:#fff; }
 
   /* ---------- FOOTER ---------- */
   footer{
-    margin-left:var(--sidebar-w); border-top:1px solid var(--border); padding:36px 60px;
+    grid-column:2; border-top:1px solid var(--border); padding:34px 60px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
-    font-family:'JetBrains Mono', monospace; font-size:.8rem; color:var(--text-dim);
+    font-size:.85rem; color:var(--text-dim);
   }
-  .socials{ display:flex; gap:14px; }
+  .socials{ display:flex; gap:12px; }
   .socials a{
-    width:38px; height:38px; border-radius:10px; border:1px solid var(--border);
+    width:40px; height:40px; border-radius:12px; border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center; color:var(--text-dim);
     transition:.25s ease;
   }
   .socials a:hover{ color:#fff; background:var(--grad); border-color:transparent; }
-  .socials svg{ width:18px; height:18px; fill:currentColor; }
+  .socials svg{ width:19px; height:19px; fill:currentColor; }
 
   /* ---------- MOBILE ---------- */
   @media (max-width:860px){
-    .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center;
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ grid-column:1; position:relative; height:auto; flex-direction:row; align-items:center;
       padding:14px 16px; overflow-x:auto; }
     .logo{ border:none; padding:0 16px 0 0; margin:0; }
-    .nav-label{ display:none; }
-    nav ul{ display:flex; gap:4px; }
-    nav a{ padding:8px 12px; border-left:none; border-bottom:2px solid transparent; white-space:nowrap; }
-    nav a.active{ border-left:none; border-bottom-color:var(--purple); }
-    .sidebar-footer{ margin:0 0 0 12px; padding:0; }
-    .theme-toggle{ font-size:.7rem; }
-    main{ margin-left:0; padding:0 24px; }
-    footer{ margin-left:0; padding:28px 24px; flex-direction:column; align-items:flex-start; }
-    section{ padding:70px 0; }
-    .hero{ padding-top:50px; min-height:auto; }
+    nav ul{ flex-direction:row; padding:0; }
+    .sidebar-footer{ margin:0 0 0 10px; padding:0; }
+    main{ grid-column:1; padding:0 24px; }
+    footer{ grid-column:1; padding:28px 24px; flex-direction:column; align-items:flex-start; }
+    section{ padding:60px 0; }
+    .hero{ padding-top:40px; min-height:auto; }
   }
   @media (prefers-reduced-motion: reduce){
     .blob, h1, h2.tagline{ animation:none !important; }
@@ -198,54 +197,68 @@
 <div class="aurora">
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
 </div>
 
 <div class="app">
   <aside class="sidebar">
-    <div class="logo">nova<span>()</span></div>
-    <div class="nav-label">arquivos</div>
+    <div class="logo"><span class="mz">Mz</span>DevSpace</div>
     <nav>
       <ul>
-        <li><a href="#inicio" class="active"><span class="dot"></span>inicio.tsx</a></li>
-        <li><a href="#quem-somos"><span class="dot"></span>quem-somos.md</a></li>
-        <li><a href="#novidades"><span class="dot"></span>novidades.json</a></li>
-        <li><a href="#contato"><span class="dot"></span>contato.sh</a></li>
+        <li><a href="#inicio" class="active">Início</a></li>
+        <li><a href="#quem-somos">Quem somos</a></li>
+        <li><a href="#novidades">Novidades</a></li>
+        <li><a href="#contato">Contato</a></li>
       </ul>
     </nav>
     <div class="sidebar-footer">
       <div class="theme-toggle">
-        <button id="btn-dark" class="active">🌙 escuro</button>
-        <button id="btn-light">☀️ claro</button>
+        <button id="btn-dark" class="active">
+          <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+          Escuro
+        </button>
+        <button id="btn-light">
+          <svg viewBox="0 0 24 24"><path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-6.66 1.42-1.42M4.92 19.08l1.42-1.42M19.08 19.08l-1.42-1.42M4.92 4.92 6.34 6.34M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" stroke-linecap="round"/></svg>
+          Claro
+        </button>
       </div>
     </div>
   </aside>
 
   <main>
     <section class="hero" id="inicio">
-      <span class="eyebrow">$ estúdio de desenvolvimento</span>
+      <span class="eyebrow">Estúdio de desenvolvimento</span>
       <h1>Transformamos café em código.</h1>
-      <h2 class="tagline">// onde protótipos viram produção</h2>
+      <h2 class="tagline">Onde protótipos viram produção</h2>
     </section>
 
     <section class="about" id="quem-somos">
-      <h3 class="heading">quem somos</h3>
+      <h3 class="heading">Quem somos</h3>
       <p>
-        Somos um pequeno estúdio de desenvolvimento focado em construir coisas que <strong>funcionam de verdade</strong>:
+        A <strong>MzDevSpace</strong> é um estúdio focado em construir coisas que funcionam de verdade:
         bots, automações, sites e ferramentas sob medida. Sem enrolação, sem jargão vazio —
         só código bem feito, testado e entregue no prazo.
       </p>
     </section>
 
     <section class="news" id="novidades">
-      <h3 class="heading">novidades</h3>
-      <div class="news-track">
+      <div class="news-header">
+        <h3 class="heading" style="margin:0;">Novidades</h3>
+        <div class="arrows">
+          <button class="arrow-btn" id="prev-btn" aria-label="Anterior">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="arrow-btn" id="next-btn" aria-label="Próximo">
+            <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="news-track" id="news-track">
 
         <article class="card">
           <div class="card-img">
             <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
               <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#4EA1FF"/>
+                <stop offset="0%" stop-color="#9B5CFF"/><stop offset="100%" stop-color="#4EA1FF"/>
               </linearGradient></defs>
               <rect width="300" height="150" fill="url(#g1)"/>
               <circle cx="230" cy="30" r="60" fill="#ffffff22"/>
@@ -263,7 +276,7 @@
           <div class="card-img">
             <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
               <defs><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#8B5CF6"/>
+                <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#9B5CFF"/>
               </linearGradient></defs>
               <rect width="300" height="150" fill="url(#g2)"/>
               <rect x="40" y="40" width="220" height="16" rx="8" fill="#ffffff33"/>
@@ -282,7 +295,7 @@
           <div class="card-img">
             <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
               <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#2A2D45"/>
+                <stop offset="0%" stop-color="#9B5CFF"/><stop offset="100%" stop-color="#232329"/>
               </linearGradient></defs>
               <rect width="300" height="150" fill="url(#g3)"/>
               <polygon points="0,150 90,60 150,110 220,40 300,90 300,150" fill="#ffffff22"/>
@@ -299,7 +312,7 @@
           <div class="card-img">
             <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
               <defs><linearGradient id="g4" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#1D2033"/>
+                <stop offset="0%" stop-color="#4EA1FF"/><stop offset="100%" stop-color="#141419"/>
               </linearGradient></defs>
               <rect width="300" height="150" fill="url(#g4)"/>
               <circle cx="150" cy="75" r="45" fill="none" stroke="#ffffff44" stroke-width="6"/>
@@ -317,32 +330,31 @@
     </section>
 
     <section id="contato" style="padding-top:0;">
-      <h3 class="heading">contato</h3>
+      <h3 class="heading">Contato</h3>
       <p style="color:var(--text-dim); font-size:1.05rem;">Fala com a gente pelas redes ali embaixo 👇</p>
     </section>
   </main>
+
+  <footer>
+    <span>© 2026 MzDevSpace — feito com café e commits.</span>
+    <div class="socials">
+      <a href="#" aria-label="GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.09 3.29 9.4 7.86 10.93.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.24 2.75.12 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.42.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+      </a>
+      <a href="#" aria-label="Instagram" title="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.97.24 2.43.4a4.9 4.9 0 0 1 1.77 1.15 4.9 4.9 0 0 1 1.15 1.77c.16.46.35 1.26.4 2.43.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.97-.4 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.46.16-1.26.35-2.43.4-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.97-.24-2.43-.4a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.16-.46-.35-1.26-.4-2.43C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.24-1.97.4-2.43a4.9 4.9 0 0 1 1.15-1.77A4.9 4.9 0 0 1 5.6 2.8c.46-.16 1.26-.35 2.43-.4C9.3 2.34 9.68 2.33 12 2.33Zm0 1.8c-3.15 0-3.5.01-4.73.07-.96.04-1.48.2-1.82.34-.46.18-.79.39-1.13.73-.34.34-.55.67-.73 1.13-.14.34-.3.86-.34 1.82-.06 1.23-.07 1.58-.07 4.73s.01 3.5.07 4.73c.04.96.2 1.48.34 1.82.18.46.39.79.73 1.13.34.34.67.55 1.13.73.34.14.86.3 1.82.34 1.23.06 1.58.07 4.73.07s3.5-.01 4.73-.07c.96-.04 1.48-.2 1.82-.34.46-.18.79-.39 1.13-.73.34-.34.55-.67.73-1.13.14-.34.3-.86.34-1.82.06-1.23.07-1.58.07-4.73s-.01-3.5-.07-4.73c-.04-.96-.2-1.48-.34-1.82a3.1 3.1 0 0 0-.73-1.13 3.1 3.1 0 0 0-1.13-.73c-.34-.14-.86-.3-1.82-.34-1.23-.06-1.58-.07-4.73-.07Zm0 4.15a5.85 5.85 0 1 1 0 11.7 5.85 5.85 0 0 1 0-11.7Zm0 1.8a4.05 4.05 0 1 0 0 8.1 4.05 4.05 0 0 0 0-8.1Zm6.08-1.6a1.37 1.37 0 1 1-2.73 0 1.37 1.37 0 0 1 2.73 0Z"/></svg>
+      </a>
+      <a href="#" aria-label="WhatsApp" title="WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.5-.17-.01-.37-.01-.57-.01s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.36 5.07L2 22l5.08-1.33A9.96 9.96 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18.2c-1.6 0-3.1-.43-4.4-1.19l-.32-.19-3.07.8.82-3-.2-.31A8.19 8.19 0 1 1 20.2 12 8.2 8.2 0 0 1 12 20.2Z"/></svg>
+      </a>
+      <a href="#" aria-label="YouTube" title="YouTube">
+        <svg viewBox="0 0 24 24"><path d="M23.5 7.2s-.23-1.64-.94-2.36c-.9-.95-1.9-.95-2.36-1.01C16.9 3.5 12 3.5 12 3.5h-.01s-4.89 0-8.2.33c-.46.06-1.46.06-2.36 1.01C.72 5.56.5 7.2.5 7.2S.27 9.11.27 11.03v1.82c0 1.92.23 3.83.23 3.83s.23 1.64.93 2.36c.9.96 2.08.93 2.6 1.03 1.89.18 8.03.33 8.03.33s4.9-.01 8.2-.34c.46-.06 1.46-.06 2.36-1.02.71-.72.94-2.36.94-2.36s.23-1.91.23-3.83v-1.82c0-1.92-.23-3.83-.23-3.83ZM9.6 15.2V8.6l6.4 3.31-6.4 3.3Z"/></svg>
+      </a>
+    </div>
+  </footer>
 </div>
 
-<footer>
-  <span>© 2026 nova() — feito com café e commits.</span>
-  <div class="socials">
-    <a href="#" aria-label="GitHub" title="GitHub">
-      <svg viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.09 3.29 9.4 7.86 10.93.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.24 2.75.12 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.42.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
-    </a>
-    <a href="#" aria-label="Instagram" title="Instagram">
-      <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.97.24 2.43.4a4.9 4.9 0 0 1 1.77 1.15 4.9 4.9 0 0 1 1.15 1.77c.16.46.35 1.26.4 2.43.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.97-.4 2.43a4.9 4.9 0 0 1-1.15 1.77 4.9 4.9 0 0 1-1.77 1.15c-.46.16-1.26.35-2.43.4-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.97-.24-2.43-.4a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.16-.46-.35-1.26-.4-2.43C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.24-1.97.4-2.43a4.9 4.9 0 0 1 1.15-1.77A4.9 4.9 0 0 1 5.6 2.8c.46-.16 1.26-.35 2.43-.4C9.3 2.34 9.68 2.33 12 2.33Zm0 1.8c-3.15 0-3.5.01-4.73.07-.96.04-1.48.2-1.82.34-.46.18-.79.39-1.13.73-.34.34-.55.67-.73 1.13-.14.34-.3.86-.34 1.82-.06 1.23-.07 1.58-.07 4.73s.01 3.5.07 4.73c.04.96.2 1.48.34 1.82.18.46.39.79.73 1.13.34.34.67.55 1.13.73.34.14.86.3 1.82.34 1.23.06 1.58.07 4.73.07s3.5-.01 4.73-.07c.96-.04 1.48-.2 1.82-.34.46-.18.79-.39 1.13-.73.34-.34.55-.67.73-1.13.14-.34.3-.86.34-1.82.06-1.23.07-1.58.07-4.73s-.01-3.5-.07-4.73c-.04-.96-.2-1.48-.34-1.82a3.1 3.1 0 0 0-.73-1.13 3.1 3.1 0 0 0-1.13-.73c-.34-.14-.86-.3-1.82-.34-1.23-.06-1.58-.07-4.73-.07Zm0 4.15a5.85 5.85 0 1 1 0 11.7 5.85 5.85 0 0 1 0-11.7Zm0 1.8a4.05 4.05 0 1 0 0 8.1 4.05 4.05 0 0 0 0-8.1Zm6.08-1.6a1.37 1.37 0 1 1-2.73 0 1.37 1.37 0 0 1 2.73 0Z"/></svg>
-    </a>
-    <a href="#" aria-label="WhatsApp" title="WhatsApp">
-      <svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.5-.17-.01-.37-.01-.57-.01s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.36 5.07L2 22l5.08-1.33A9.96 9.96 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18.2c-1.6 0-3.1-.43-4.4-1.19l-.32-.19-3.07.8.82-3-.2-.31A8.19 8.19 0 1 1 20.2 12 8.2 8.2 0 0 1 12 20.2Z"/></svg>
-    </a>
-    <a href="#" aria-label="YouTube" title="YouTube">
-      <svg viewBox="0 0 24 24"><path d="M23.5 7.2s-.23-1.64-.94-2.36c-.9-.95-1.9-.95-2.36-1.01C16.9 3.5 12 3.5 12 3.5h-.01s-4.89 0-8.2.33c-.46.06-1.46.06-2.36 1.01C.72 5.56.5 7.2.5 7.2S.27 9.11.27 11.03v1.82c0 1.92.23 3.83.23 3.83s.23 1.64.93 2.36c.9.96 2.08.93 2.6 1.03 1.89.18 8.03.33 8.03.33s4.9-.01 8.2-.34c.46-.06 1.46-.06 2.36-1.02.71-.72.94-2.36.94-2.36s.23-1.91.23-3.83v-1.82c0-1.92-.23-3.83-.23-3.83ZM9.6 15.2V8.6l6.4 3.31-6.4 3.3Z"/></svg>
-    </a>
-  </div>
-</footer>
-
 <script>
-  // toggle de tema
   const html = document.documentElement;
   const btnDark = document.getElementById('btn-dark');
   const btnLight = document.getElementById('btn-light');
@@ -354,6 +366,16 @@
   }
   btnDark.addEventListener('click', () => setTheme('dark'));
   btnLight.addEventListener('click', () => setTheme('light'));
+
+  // setas do carrossel (além de arrastar com o dedo/mouse)
+  const track = document.getElementById('news-track');
+  const cardWidth = 310;
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    track.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+  });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+  });
 
   // destaca item ativo da sidebar ao rolar
   const sections = document.querySelectorAll('section[id]');
