@@ -188,12 +188,26 @@
         <label for="description">Descrição</label>
         <textarea id="description" required placeholder="Uma ou duas frases explicando a novidade"></textarea>
 
-        <label for="link_url">Link (opcional)</label>
-        <input type="url" id="link_url" placeholder="https://...">
+        <div class="grid-2">
+          <div>
+            <label for="link_url">Link</label>
+            <input type="url" id="link_url" placeholder="https://... (do site ou do arquivo pra baixar)">
+          </div>
+          <div>
+            <label for="button_label">Texto do botão</label>
+            <input type="text" id="button_label" placeholder="Acessar" value="Acessar">
+          </div>
+        </div>
+
+        <label for="image_url">Imagem própria do card (opcional)</label>
+        <input type="url" id="image_url" placeholder="https://... link direto da imagem">
+        <p style="font-size:.78rem; color:var(--text-dim); margin-top:-10px; margin-bottom:16px;">
+          Deixa em branco pra usar o padrão gerado (cores + formato) definido abaixo.
+        </p>
 
         <div class="grid-3">
           <div>
-            <label for="pattern">Padrão visual</label>
+            <label for="pattern">Padrão visual (se não tiver imagem)</label>
             <select id="pattern">
               <option value="circles">Círculos</option>
               <option value="bars">Barras</option>
@@ -344,7 +358,9 @@
 
     listEl.innerHTML = data.map(item => `
       <div class="item" data-id="${item.id}">
-        <div class="item-thumb">${cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
+        <div class="item-thumb">${item.image_url
+          ? `<img src="${escapeHtml(item.image_url)}" alt="" style="width:100%; height:100%; object-fit:cover; display:block;">`
+          : cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
         <div class="item-body">
           <h4>${escapeHtml(item.title)}</h4>
           <p>${escapeHtml(item.description)}</p>
@@ -404,6 +420,8 @@
     document.getElementById('title').value = record.title;
     document.getElementById('description').value = record.description;
     document.getElementById('link_url').value = record.link_url || '';
+    document.getElementById('button_label').value = record.button_label || 'Acessar';
+    document.getElementById('image_url').value = record.image_url || '';
     document.getElementById('pattern').value = record.pattern;
     document.getElementById('gradient_from').value = record.gradient_from;
     document.getElementById('gradient_to').value = record.gradient_to;
@@ -417,6 +435,7 @@
   function resetForm(){
     form.reset();
     document.getElementById('edit-id').value = '';
+    document.getElementById('button_label').value = 'Acessar';
     document.getElementById('gradient_from').value = '#9B5CFF';
     document.getElementById('gradient_to').value = '#4EA1FF';
     cancelEditBtn.style.display = 'none';
@@ -435,6 +454,8 @@
       title: document.getElementById('title').value.trim(),
       description: document.getElementById('description').value.trim(),
       link_url: document.getElementById('link_url').value.trim() || null,
+      button_label: document.getElementById('button_label').value.trim() || 'Acessar',
+      image_url: document.getElementById('image_url').value.trim() || null,
       pattern: document.getElementById('pattern').value,
       gradient_from: document.getElementById('gradient_from').value,
       gradient_to: document.getElementById('gradient_to').value,
