@@ -319,11 +319,13 @@
 
     track.innerHTML = data.map(item => `
       <article class="card">
-        <div class="card-img">${cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
+        <div class="card-img">${item.image_url
+          ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;">`
+          : cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
         <div class="card-body">
           <h4>${escapeHtml(item.title)}</h4>
           <p>${escapeHtml(item.description)}</p>
-          <a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">Saiba mais</a>
+          <a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">${escapeHtml(item.button_label || 'Acessar')}</a>
         </div>
       </article>
     `).join('');
