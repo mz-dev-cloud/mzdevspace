@@ -663,17 +663,22 @@
     };
 
     const editId = document.getElementById('nov-edit-id').value;
-    let error;
+    let error, data;
     if (editId) {
-      ({ error } = await sb.from('novidades').update(payload).eq('id', editId));
+      ({ error, data } = await sb.from('novidades').update(payload).eq('id', editId).select());
     } else {
-      ({ error } = await sb.from('novidades').insert(payload));
+      ({ error, data } = await sb.from('novidades').insert(payload).select());
     }
 
     novSaveBtn.disabled = false;
 
     if (error) {
       novFormError.textContent = 'Erro ao salvar: ' + error.message;
+      novFormError.classList.add('show');
+      return;
+    }
+    if (!data || data.length === 0) {
+      novFormError.textContent = 'O Supabase não confirmou o salvamento (0 linhas afetadas). Provavelmente é RLS bloqueando insert/update na tabela novidades — confere as policies no painel do Supabase.';
       novFormError.classList.add('show');
       return;
     }
@@ -815,17 +820,22 @@
     };
 
     const editId = document.getElementById('rec-edit-id').value;
-    let error;
+    let error, data;
     if (editId) {
-      ({ error } = await sb.from('recursos').update(payload).eq('id', editId));
+      ({ error, data } = await sb.from('recursos').update(payload).eq('id', editId).select());
     } else {
-      ({ error } = await sb.from('recursos').insert(payload));
+      ({ error, data } = await sb.from('recursos').insert(payload).select());
     }
 
     recSaveBtn.disabled = false;
 
     if (error) {
       recFormError.textContent = 'Erro ao salvar: ' + error.message;
+      recFormError.classList.add('show');
+      return;
+    }
+    if (!data || data.length === 0) {
+      recFormError.textContent = 'O Supabase não confirmou o salvamento (0 linhas afetadas). Provavelmente é RLS bloqueando insert/update na tabela recursos — confere as policies no painel do Supabase.';
       recFormError.classList.add('show');
       return;
     }
@@ -844,10 +854,13 @@
   const musicCountEl = document.getElementById('music-count');
 
   async function loadMusicSetting(){
-    const { data, error } = await sb.from('recursos_settings').select('music_url').eq('id', 1).single();
+    const { data, error } = await sb.from('recursos_settings').select('music_url').eq('id', 1).maybeSingle();
     if (!error && data) {
       document.getElementById('music_url').value = data.music_url || '';
       musicCountEl.textContent = data.music_url ? 'Ativa' : 'Sem música';
+    } else if (!error && !data) {
+      // A linha id=1 ainda não existe na tabela recursos_settings
+      musicCountEl.textContent = 'Sem música';
     } else {
       musicCountEl.textContent = '—';
     }
@@ -859,11 +872,22 @@
     musicSaveBtn.disabled = true;
     const music_url = document.getElementById('music_url').value.trim() || null;
 
-    const { error } = await sb.from('recursos_settings').update({ music_url }).eq('id', 1);
+    // upsert em vez de update: se a linha id=1 não existir ainda em
+    // recursos_settings, ela é criada agora em vez de "salvar" sem efeito.
+    const { data, error } = await sb
+      .from('recursos_settings')
+      .upsert({ id: 1, music_url })
+      .select();
 
     musicSaveBtn.disabled = false;
+
     if (error) {
       musicError.textContent = 'Erro ao salvar: ' + error.message;
+      musicError.classList.add('show');
+      return;
+    }
+    if (!data || data.length === 0) {
+      musicError.textContent = 'O Supabase não retornou confirmação de que salvou. Provavelmente é uma policy de RLS bloqueando update/insert na tabela recursos_settings para o usuário logado — confere isso no painel do Supabase.';
       musicError.classList.add('show');
       return;
     }
