@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Recursos — MzDevSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#000000;
+    --surface-2:#111114;
+    --surface-3:#18181d;
+    --border:#1F1F24;
+    --text:#F5F5F7;
+    --text-dim:#9A9AA4;
+    --purple:#9B5CFF;
+    --blue:#4EA1FF;
+    --grad: linear-gradient(120deg, var(--purple), var(--blue));
+    --shadow: 0 20px 50px -18px rgba(155,92,255,.4);
+    --radius: 16px;
+    --danger:#FF6B6B;
+  }
+  html[data-theme="light"]{
+    --bg:#EDEBFB;
+    --surface:#F6F5FF;
+    --surface-2:#FFFFFF;
+    --surface-3:#F0EEFC;
+    --border:#D6D3F2;
+    --text:#17161F;
+    --text-dim:#5F5D78;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:'Inter', sans-serif;
+    min-height:100vh; transition:background .3s ease, color .3s ease;
+  }
+  h1,h2,h3{ font-family:'Sora', sans-serif; }
+  .mz{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* ---------- LOGIN ---------- */
+  .login-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:380px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:36px 32px; box-shadow:var(--shadow);
+  }
+  .login-card h1{ font-size:1.4rem; font-weight:800; margin-bottom:6px; }
+  .login-card p.sub{ color:var(--text-dim); font-size:.88rem; margin-bottom:24px; }
+  label{ display:block; font-size:.82rem; font-weight:600; color:var(--text-dim); margin-bottom:6px; }
+  input, textarea, select{
+    width:100%; background:var(--surface-3); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:11px 13px; font-family:inherit; font-size:.92rem; margin-bottom:16px;
+    outline:none; transition:border-color .2s ease;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--purple); }
+  textarea{ resize:vertical; min-height:70px; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:700; font-size:.88rem; padding:12px 20px; border-radius:100px; border:none;
+    background:var(--grad); color:#fff; cursor:pointer; transition:.2s ease; width:100%;
+  }
+  .btn:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:.6; cursor:not-allowed; }
+  .btn-ghost{
+    background:transparent; border:1px solid var(--border); color:var(--text); width:auto;
+  }
+  .btn-danger{ background:var(--danger); width:auto; }
+  .btn-sm{ padding:8px 14px; font-size:.8rem; width:auto; }
+  .error-msg{
+    background:rgba(255,107,107,.12); border:1px solid var(--danger); color:var(--danger);
+    padding:10px 14px; border-radius:10px; font-size:.85rem; margin-bottom:16px; display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  /* ---------- APP ---------- */
+  .app{ display:none; }
+  .app.show{ display:block; }
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--border); background:var(--surface-2);
+    position:sticky; top:0; z-index:10;
+  }
+  header.topbar .brand{ font-weight:800; font-size:1.1rem; }
+  header.topbar .who{ color:var(--text-dim); font-size:.82rem; }
+  .topbar-actions{ display:flex; align-items:center; gap:14px; }
+
+  main.wrap{ max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+  .section-title{ font-size:1.2rem; font-weight:700; margin-bottom:4px; }
+  .section-sub{ color:var(--text-dim); font-size:.88rem; margin-bottom:22px; }
+
+  .form-card{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius);
+    padding:26px; margin-bottom:36px;
+  }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .color-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .color-row input[type="color"]{
+    width:44px; height:40px; padding:2px; margin:0; cursor:pointer;
+  }
+  .color-row span{ font-size:.85rem; color:var(--text-dim); }
+  .checkbox-row{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .checkbox-row input{ width:auto; margin:0; }
+  .checkbox-row label{ margin:0; font-weight:600; color:var(--text); }
+
+  .list{ display:flex; flex-direction:column; gap:12px; }
+  .item{
+    display:flex; gap:16px; align-items:center; background:var(--surface-2);
+    border:1px solid var(--border); border-radius:14px; padding:14px 16px;
+  }
+  .item-thumb{ width:70px; height:44px; border-radius:8px; overflow:hidden; flex-shrink:0; }
+  .item-thumb svg{ width:100%; height:100%; display:block; }
+  .item-body{ flex:1; min-width:0; }
+  .item-body h4{ font-size:.95rem; font-weight:700; margin-bottom:2px; }
+  .item-body p{ font-size:.8rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .badge{
+    font-size:.7rem; font-weight:700; padding:4px 10px; border-radius:100px; white-space:nowrap;
+  }
+  .badge.on{ background:rgba(78,220,140,.15); color:#4EDC8C; }
+  .badge.off{ background:rgba(154,154,164,.15); color:var(--text-dim); }
+  .item-actions{ display:flex; gap:8px; flex-shrink:0; }
+  .icon-btn{
+    all:unset; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--border); cursor:pointer; color:var(--text-dim); transition:.2s ease;
+  }
+  .icon-btn:hover{ color:var(--text); border-color:var(--purple); }
+  .icon-btn svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+  .empty-state{ color:var(--text-dim); font-size:.9rem; padding:24px; text-align:center; border:1px dashed var(--border); border-radius:14px; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 20px; border-radius:100px; font-size:.85rem; font-weight:600;
+    box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s ease; z-index:50;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width:640px){
+    .grid-2, .grid-3{ grid-template-columns:1fr; }
+    header.topbar{ padding:16px 18px; }
+    main.wrap{ padding:28px 16px 60px; }
+    .item{ flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ---------- TELA DE LOGIN ---------- -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <h1><span class="mz">Mz</span>DevSpace Recursos</h1>
+    <p class="sub">Entra com o mesmo login que você usa no Supabase (é o mesmo do outro admin).</p>
+    <div class="error-msg" id="login-error"></div>
+    <form id="login-form">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" required autocomplete="username">
+      <label for="password">Senha</label>
+      <input type="password" id="password" required autocomplete="current-password">
+      <button type="submit" class="btn" id="login-btn">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ---------- PAINEL ---------- -->
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="mz">Mz</span>DevSpace <span style="color:var(--text-dim); font-weight:500;">· recursos</span></div>
+    <div class="topbar-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm" style="text-decoration:none; display:inline-flex;">Admin novidades</a>
+      <span class="who" id="who"></span>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="section-title">Nova novidade</div>
+    <p class="section-sub">Preenche aqui e escolhe se ela já vai pro ar ou fica como rascunho.</p>
+
+    <div class="form-card">
+      <div class="error-msg" id="form-error"></div>
+      <form id="novidade-form">
+        <input type="hidden" id="edit-id">
+        <label for="title">Título</label>
+        <input type="text" id="title" required placeholder="Ex: Bot para Telegram">
+
+        <label for="description">Descrição</label>
+        <textarea id="description" required placeholder="Uma ou duas frases explicando o recurso"></textarea>
+
+        <label for="category">Categoria</label>
+        <select id="category" required>
+          <option value="bots">Bots</option>
+          <option value="scripts">Scripts</option>
+          <option value="packs">Packs</option>
+        </select>
+
+        <div class="grid-2">
+          <div>
+            <label for="link_url">Link</label>
+            <input type="url" id="link_url" placeholder="https://... (do site ou do arquivo pra baixar)">
+          </div>
+          <div>
+            <label for="button_label">Texto do botão</label>
+            <input type="text" id="button_label" placeholder="Acessar" value="Acessar">
+          </div>
+        </div>
+
+        <label for="image_url">Imagem própria do card (opcional)</label>
+        <input type="url" id="image_url" placeholder="https://... link direto da imagem">
+        <p style="font-size:.78rem; color:var(--text-dim); margin-top:-10px; margin-bottom:16px;">
+          Deixa em branco pra usar o padrão gerado (cores + formato) definido abaixo.
+        </p>
+
+        <div class="grid-3">
+          <div>
+            <label for="pattern">Padrão visual (se não tiver imagem)</label>
+            <select id="pattern">
+              <option value="circles">Círculos</option>
+              <option value="bars">Barras</option>
+              <option value="diagonal">Diagonal</option>
+              <option value="ring">Anel</option>
+            </select>
+          </div>
+          <div>
+            <label for="gradient_from">Cor inicial</label>
+            <div class="color-row">
+              <input type="color" id="gradient_from" value="#9B5CFF">
+              <span>gradiente</span>
+            </div>
+          </div>
+          <div>
+            <label for="gradient_to">Cor final</label>
+            <div class="color-row">
+              <input type="color" id="gradient_to" value="#4EA1FF">
+              <span>gradiente</span>
+            </div>
+          </div>
+        </div>
+
+        <label for="sort_order">Ordem de exibição (menor aparece primeiro)</label>
+        <input type="number" id="sort_order" value="0">
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="published">
+          <label for="published">Publicar imediatamente (visível pra todo mundo no site)</label>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button type="submit" class="btn" id="save-btn" style="width:auto;">Salvar novidade</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cancel-edit-btn" style="display:none;">Cancelar edição</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="section-title">Música da página</div>
+    <p class="section-sub">Um link direto de arquivo de áudio (.mp3, .ogg...). Toca automaticamente pra quem visitar, com botão de pausar e voltar do início.</p>
+    <div class="form-card">
+      <div class="error-msg" id="music-error"></div>
+      <form id="music-form">
+        <label for="music_url">Link da música</label>
+        <input type="url" id="music_url" placeholder="https://.../musica.mp3">
+        <button type="submit" class="btn" id="music-save-btn" style="width:auto;">Salvar música</button>
+      </form>
+    </div>
+
+    <div class="section-title">Todos os recursos</div>
+    <p class="section-sub">Publicados aparecem no site, separados por categoria. Rascunhos só você vê aqui.</p>
+    <div class="list" id="list">
+      <div class="empty-state">Carregando...</div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://fzrsoydztbljlqlcdlhr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_H3Gkk6LY4TnQx6gePO18Og_ZL_YxJpJ';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const loginWrap = document.getElementById('login-wrap');
+  const app = document.getElementById('app');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+  const loginBtn = document.getElementById('login-btn');
+  const whoEl = document.getElementById('who');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  const form = document.getElementById('novidade-form');
+  const formError = document.getElementById('form-error');
+  const saveBtn = document.getElementById('save-btn');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const listEl = document.getElementById('list');
+  const toastEl = document.getElementById('toast');
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2400);
+  }
+
+  function cardSvg(pattern, from, to){
+    const defs = `<defs><linearGradient id="g${Math.random().toString(36).slice(2)}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${from}"/><stop offset="100%" stop-color="${to}"/>
+    </linearGradient></defs>`;
+    return `<svg viewBox="0 0 300 150"><rect width="300" height="150" fill="${from}"/></svg>`;
+  }
+
+  // ---------- AUTENTICAÇÃO ----------
+  async function checkSession(){
+    const { data } = await sb.auth.getSession();
+    if (data.session) {
+      showApp(data.session.user);
+    } else {
+      showLogin();
+    }
+  }
+
+  function showLogin(){
+    loginWrap.style.display = 'flex';
+    app.classList.remove('show');
+  }
+
+  function showApp(user){
+    loginWrap.style.display = 'none';
+    app.classList.add('show');
+    whoEl.textContent = user.email;
+    loadList();
+    loadMusicSetting();
+  }
+
+  // ---------- MÚSICA (tabela recursos_settings, separada de recursos) ----------
+  const musicForm = document.getElementById('music-form');
+  const musicError = document.getElementById('music-error');
+  const musicSaveBtn = document.getElementById('music-save-btn');
+
+  async function loadMusicSetting(){
+    const { data, error } = await sb.from('recursos_settings').select('music_url').eq('id', 1).single();
+    if (!error && data) {
+      document.getElementById('music_url').value = data.music_url || '';
+    }
+  }
+
+  musicForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    musicError.classList.remove('show');
+    musicSaveBtn.disabled = true;
+    const music_url = document.getElementById('music_url').value.trim() || null;
+
+    const { error } = await sb.from('recursos_settings').update({ music_url }).eq('id', 1);
+
+    musicSaveBtn.disabled = false;
+    if (error) {
+      musicError.textContent = 'Erro ao salvar: ' + error.message;
+      musicError.classList.add('show');
+      return;
+    }
+    showToast('Música atualizada!');
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.classList.remove('show');
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Entrando...';
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Entrar';
+
+    if (error) {
+      loginError.textContent = 'E-mail ou senha errados. Confere e tenta de novo.';
+      loginError.classList.add('show');
+      return;
+    }
+    showApp(data.user);
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    showLogin();
+  });
+
+  // ---------- LISTAGEM ----------
+  async function loadList(){
+    listEl.innerHTML = '<div class="empty-state">Carregando...</div>';
+    const { data, error } = await sb
+      .from('recursos')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      listEl.innerHTML = `<div class="empty-state">Erro ao carregar: ${error.message}</div>`;
+      return;
+    }
+    if (!data || data.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">Nenhuma novidade ainda. Cria a primeira ali em cima ☝️</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.map(item => `
+      <div class="item" data-id="${item.id}">
+        <div class="item-thumb">${item.image_url
+          ? `<img src="${escapeHtml(item.image_url)}" alt="" style="width:100%; height:100%; object-fit:cover; display:block;">`
+          : cardSvg(item.pattern, item.gradient_from, item.gradient_to)}</div>
+        <div class="item-body">
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.description)}</p>
+        </div>
+        <span class="badge off" style="text-transform:capitalize;">${escapeHtml(item.category)}</span>
+        <span class="badge ${item.published ? 'on' : 'off'}">${item.published ? 'Publicado' : 'Rascunho'}</span>
+        <div class="item-actions">
+          <button class="icon-btn toggle-btn" title="${item.published ? 'Despublicar' : 'Publicar'}">
+            <svg viewBox="0 0 24 24">${item.published
+              ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19M1 1l22 22"/>'
+              : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/>'}</svg>
+          </button>
+          <button class="icon-btn edit-btn" title="Editar">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-btn delete-btn" title="Apagar">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.item').forEach(itemEl => {
+      const id = itemEl.dataset.id;
+      const record = data.find(d => d.id === id);
+      itemEl.querySelector('.toggle-btn').addEventListener('click', () => togglePublished(record));
+      itemEl.querySelector('.edit-btn').addEventListener('click', () => editItem(record));
+      itemEl.querySelector('.delete-btn').addEventListener('click', () => deleteItem(record));
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  async function togglePublished(record){
+    const { error } = await sb
+      .from('recursos')
+      .update({ published: !record.published })
+      .eq('id', record.id);
+    if (error) { showToast('Erro: ' + error.message); return; }
+    showToast(!record.published ? 'Publicado!' : 'Despublicado.');
+    loadList();
+  }
+
+  async function deleteItem(record){
+    if (!confirm(`Apagar "${record.title}" de vez? Não tem como desfazer.`)) return;
+    const { error } = await sb.from('recursos').delete().eq('id', record.id);
+    if (error) { showToast('Erro: ' + error.message); return; }
+    showToast('Apagado.');
+    loadList();
+  }
+
+  function editItem(record){
+    document.getElementById('edit-id').value = record.id;
+    document.getElementById('title').value = record.title;
+    document.getElementById('description').value = record.description;
+    document.getElementById('category').value = record.category;
+    document.getElementById('link_url').value = record.link_url || '';
+    document.getElementById('button_label').value = record.button_label || 'Acessar';
+    document.getElementById('image_url').value = record.image_url || '';
+    document.getElementById('pattern').value = record.pattern;
+    document.getElementById('gradient_from').value = record.gradient_from;
+    document.getElementById('gradient_to').value = record.gradient_to;
+    document.getElementById('sort_order').value = record.sort_order;
+    document.getElementById('published').checked = record.published;
+    cancelEditBtn.style.display = 'inline-flex';
+    saveBtn.textContent = 'Salvar alterações';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm(){
+    form.reset();
+    document.getElementById('edit-id').value = '';
+    document.getElementById('category').value = 'bots';
+    document.getElementById('button_label').value = 'Acessar';
+    document.getElementById('gradient_from').value = '#9B5CFF';
+    document.getElementById('gradient_to').value = '#4EA1FF';
+    cancelEditBtn.style.display = 'none';
+    saveBtn.textContent = 'Salvar novidade';
+  }
+
+  cancelEditBtn.addEventListener('click', resetForm);
+
+  // ---------- CRIAR / EDITAR ----------
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formError.classList.remove('show');
+    saveBtn.disabled = true;
+
+    const payload = {
+      title: document.getElementById('title').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      category: document.getElementById('category').value,
+      link_url: document.getElementById('link_url').value.trim() || null,
+      button_label: document.getElementById('button_label').value.trim() || 'Acessar',
+      image_url: document.getElementById('image_url').value.trim() || null,
+      pattern: document.getElementById('pattern').value,
+      gradient_from: document.getElementById('gradient_from').value,
+      gradient_to: document.getElementById('gradient_to').value,
+      sort_order: parseInt(document.getElementById('sort_order').value, 10) || 0,
+      published: document.getElementById('published').checked
+    };
+
+    const editId = document.getElementById('edit-id').value;
+    let error;
+    if (editId) {
+      ({ error } = await sb.from('recursos').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('recursos').insert(payload));
+    }
+
+    saveBtn.disabled = false;
+
+    if (error) {
+      formError.textContent = 'Erro ao salvar: ' + error.message;
+      formError.classList.add('show');
+      return;
+    }
+
+    showToast(editId ? 'Alterações salvas!' : 'Novidade criada!');
+    resetForm();
+    loadList();
+  });
+
+  checkSession();
+</script>
+
+</body>
+</html>
