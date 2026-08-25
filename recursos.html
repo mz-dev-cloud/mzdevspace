@@ -122,6 +122,34 @@
   .btn:hover{ background:var(--grad); border-color:transparent; color:#fff; }
   .empty-state{ color:var(--text-dim); font-size:.9rem; padding:20px 4px; }
 
+  /* ---------- BUSCA ---------- */
+  .search-wrap{ position:relative; max-width:420px; width:100%; margin-top:30px; }
+  .search-wrap svg{
+    position:absolute; left:16px; top:50%; transform:translateY(-50%);
+    width:17px; height:17px; stroke:var(--text-dim); fill:none; stroke-width:2; stroke-linecap:round; pointer-events:none;
+  }
+  .search-wrap input{
+    all:unset; box-sizing:border-box; width:100%; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:100px; padding:13px 16px 13px 44px; color:var(--text); font-family:'Inter', sans-serif;
+    font-size:.9rem; transition:.25s ease;
+  }
+  .search-wrap input:focus{ border-color:var(--a); }
+  .search-wrap input::placeholder{ color:var(--text-dim); }
+
+  /* ---------- VOTOS ---------- */
+  .votes{ margin-bottom:16px; }
+  .votes-bar{ height:7px; border-radius:100px; background:var(--bg); border:1px solid var(--border); overflow:hidden; }
+  .votes-fill{ height:100%; width:0%; background:var(--grad); border-radius:100px; transition:width .5s ease; }
+  .votes-meta{ display:flex; align-items:center; justify-content:space-between; margin-top:7px; font-size:.74rem; color:var(--text-dim); }
+  .votes-actions{ display:flex; gap:8px; margin-top:10px; }
+  .vote-btn{
+    all:unset; box-sizing:border-box; flex:1; text-align:center; cursor:pointer; font-size:.82rem; font-weight:600;
+    padding:8px 0; border-radius:8px; border:1px solid var(--border); color:var(--text-dim); transition:.2s ease;
+  }
+  .vote-btn:hover:not(:disabled){ border-color:var(--a); color:var(--text); }
+  .vote-btn:disabled{ cursor:default; opacity:.5; }
+  .vote-btn.active{ border-color:var(--a); color:var(--text); background:var(--bg); }
+
   /* ---------- PLAYER DE MÚSICA ---------- */
   .player{
     position:fixed; bottom:22px; right:22px; z-index:150;
@@ -202,6 +230,10 @@
     <span class="eyebrow">Biblioteca</span>
     <h1>Recursos pra usar direto.</h1>
     <h2 class="tagline">Bots, scripts e packs prontos pra baixar</h2>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar por nome ou descrição..." aria-label="Buscar recursos">
+    </div>
   </section>
 
   <section id="bots">
@@ -272,10 +304,36 @@
     return div.innerHTML;
   }
 
-  function renderCards(containerId, items){
+  let allRecursos = [];
+
+  function normalize(str){
+    return (str || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  function votesHtml(item){
+    const up = item.votes_up || 0;
+    const down = item.votes_down || 0;
+    const total = up + down;
+    const pct = total > 0 ? Math.round((up / total) * 100) : 0;
+    const voted = localStorage.getItem('mzds_voted_' + item.id);
+    return `
+      <div class="votes" data-id="${item.id}">
+        <div class="votes-bar"><div class="votes-fill" style="width:${pct}%"></div></div>
+        <div class="votes-meta">
+          <span class="votes-pct">${total > 0 ? pct + '% aprovação' : 'Sem votos ainda'}</span>
+          <span class="votes-count">${total} voto${total === 1 ? '' : 's'}</span>
+        </div>
+        <div class="votes-actions">
+          <button class="vote-btn vote-up ${voted === 'up' ? 'active' : ''}" data-vote="up" ${voted ? 'disabled' : ''}>👍 Curti</button>
+          <button class="vote-btn vote-down ${voted === 'down' ? 'active' : ''}" data-vote="down" ${voted ? 'disabled' : ''}>👎 Não curti</button>
+        </div>
+      </div>`;
+  }
+
+  function renderCards(containerId, items, isSearching){
     const el = document.getElementById(containerId);
     if (!items || items.length === 0) {
-      el.innerHTML = '<div class="empty-state">Nada publicado nessa categoria ainda.</div>';
+      el.innerHTML = `<div class="empty-state">${isSearching ? 'Nenhum resultado encontrado.' : 'Nada publicado nessa categoria ainda.'}</div>`;
       return;
     }
     el.innerHTML = items.map(item => `
@@ -286,11 +344,27 @@
         <div class="card-body">
           <h4>${escapeHtml(item.title)}</h4>
           <p>${escapeHtml(item.description)}</p>
+          ${votesHtml(item)}
           <a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">${escapeHtml(item.button_label || 'Acessar')}</a>
         </div>
       </article>
     `).join('');
   }
+
+  function applyFilter(){
+    const q = normalize(searchInput.value.trim());
+    const isSearching = q.length > 0;
+    const filtered = isSearching
+      ? allRecursos.filter(i => normalize(i.title).includes(q) || normalize(i.description).includes(q))
+      : allRecursos;
+
+    renderCards('grid-bots', filtered.filter(i => i.category === 'bots'), isSearching);
+    renderCards('grid-scripts', filtered.filter(i => i.category === 'scripts'), isSearching);
+    renderCards('grid-packs', filtered.filter(i => i.category === 'packs'), isSearching);
+  }
+
+  const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('input', applyFilter);
 
   async function loadRecursos(){
     const { data, error } = await sb
@@ -306,11 +380,46 @@
       return;
     }
 
-    renderCards('grid-bots', data.filter(i => i.category === 'bots'));
-    renderCards('grid-scripts', data.filter(i => i.category === 'scripts'));
-    renderCards('grid-packs', data.filter(i => i.category === 'packs'));
+    allRecursos = data;
+    applyFilter();
   }
   loadRecursos();
+
+  // ---------- VOTOS ----------
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.vote-btn');
+    if (!btn || btn.disabled) return;
+
+    const votesEl = btn.closest('.votes');
+    const id = votesEl.dataset.id;
+    const voteType = btn.dataset.vote;
+    const storageKey = 'mzds_voted_' + id;
+    if (localStorage.getItem(storageKey)) return;
+
+    votesEl.querySelectorAll('.vote-btn').forEach(b => b.disabled = true);
+
+    const { data, error } = await sb.rpc('vote_recurso', { p_id: id, p_vote: voteType });
+    if (error) {
+      console.error(error);
+      votesEl.querySelectorAll('.vote-btn').forEach(b => b.disabled = false);
+      return;
+    }
+
+    localStorage.setItem(storageKey, voteType);
+    const result = Array.isArray(data) ? data[0] : data;
+    const up = result?.votes_up || 0;
+    const down = result?.votes_down || 0;
+    const total = up + down;
+    const pct = total > 0 ? Math.round((up / total) * 100) : 0;
+
+    votesEl.querySelector('.votes-fill').style.width = pct + '%';
+    votesEl.querySelector('.votes-pct').textContent = total > 0 ? pct + '% aprovação' : 'Sem votos ainda';
+    votesEl.querySelector('.votes-count').textContent = `${total} voto${total === 1 ? '' : 's'}`;
+    btn.classList.add('active');
+
+    const item = allRecursos.find(i => i.id === id);
+    if (item) { item.votes_up = up; item.votes_down = down; }
+  });
 
   // ---------- MENU ----------
   const sidebar = document.getElementById('sidebar');
