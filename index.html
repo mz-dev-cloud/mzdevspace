@@ -404,7 +404,7 @@
     function makeFlake(){
       return {
         x: Math.random() * w,
-        y: Math.random() * -h,
+        y: Math.random() * h,
         r: Math.random() * 2.6 + 1.2,
         speed: Math.random() * 0.7 + 0.35,
         drift: Math.random() * 0.6 - 0.3,
@@ -415,7 +415,7 @@
     }
 
     function initFlakes(){
-      const count = Math.min(90, Math.round((w * h) / 18000));
+      const count = Math.min(100, Math.floor(w / 12));
       flakes = Array.from({ length: count }, makeFlake);
     }
 
