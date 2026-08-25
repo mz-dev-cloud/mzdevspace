@@ -345,11 +345,35 @@
           <h4>${escapeHtml(item.title)}</h4>
           <p>${escapeHtml(item.description)}</p>
           ${votesHtml(item)}
-          <a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">${escapeHtml(item.button_label || 'Acessar')}</a>
+          ${item.password_protected
+            ? `<button type="button" class="btn locked-btn" data-id="${item.id}">🔒 ${escapeHtml(item.button_label || 'Acessar')}</button>`
+            : `<a href="${item.link_url ? escapeHtml(item.link_url) : '#'}" class="btn">${escapeHtml(item.button_label || 'Acessar')}</a>`}
         </div>
       </article>
     `).join('');
   }
+
+  // ---------- BOTÃO COM SENHA ----------
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.locked-btn');
+    if (!btn) return;
+
+    const senha = prompt('Esse recurso pede senha pra acessar:');
+    if (senha === null) return; // cancelou
+
+    btn.disabled = true;
+    const { data: link, error } = await sb.rpc('checar_senha_recurso', {
+      p_id: btn.dataset.id,
+      p_senha: senha
+    });
+    btn.disabled = false;
+
+    if (error || !link) {
+      alert('Senha errada.');
+      return;
+    }
+    window.open(link, '_blank');
+  });
 
   function applyFilter(){
     const q = normalize(searchInput.value.trim());
@@ -368,9 +392,8 @@
 
   async function loadRecursos(){
     const { data, error } = await sb
-      .from('recursos')
+      .from('recursos_public')
       .select('*')
-      .eq('published', true)
       .order('sort_order', { ascending: true });
 
     if (error) {
