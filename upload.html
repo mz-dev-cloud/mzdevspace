@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload — MzDevSpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000; --surface-2:#111114; --surface-3:#18181d; --border:#1F1F24;
+    --text:#F5F5F7; --text-dim:#9A9AA4;
+    --purple:#9B5CFF; --blue:#4EA1FF;
+    --grad: linear-gradient(120deg, var(--purple), var(--blue));
+    --shadow: 0 20px 50px -18px rgba(155,92,255,.4);
+    --radius:16px; --danger:#FF6B6B; --ok:#4EDC8C;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:'Inter', sans-serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  h1,h3{ font-family:'Sora', sans-serif; }
+  .mz{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card{
+    width:100%; max-width:460px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:32px; box-shadow:var(--shadow);
+  }
+  h1{ font-size:1.3rem; font-weight:800; margin-bottom:4px; }
+  p.sub{ color:var(--text-dim); font-size:.85rem; margin-bottom:24px; }
+
+  .dropzone{
+    border:2px dashed var(--border); border-radius:14px; padding:34px 20px; text-align:center;
+    cursor:pointer; transition:.2s ease; background:var(--surface-3);
+  }
+  .dropzone.drag{ border-color:var(--purple); background:rgba(155,92,255,.08); }
+  .dropzone p{ color:var(--text-dim); font-size:.88rem; margin-top:8px; }
+  .dropzone .icon{ font-size:2rem; }
+  input[type="file"]{ display:none; }
+
+  .file-info{
+    margin-top:16px; background:var(--surface-3); border:1px solid var(--border);
+    border-radius:10px; padding:12px 14px; font-size:.85rem; display:none;
+  }
+  .file-info.show{ display:block; }
+  .file-info .name{ font-weight:600; word-break:break-all; }
+  .file-info .size{ color:var(--text-dim); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    font-weight:700; font-size:.9rem; padding:13px 20px; border-radius:100px; border:none;
+    background:var(--grad); color:#fff; cursor:pointer; margin-top:18px; transition:.2s ease;
+  }
+  .btn:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+  .bar-wrap{ height:6px; background:var(--surface-3); border-radius:100px; margin-top:14px; overflow:hidden; display:none; }
+  .bar-wrap.show{ display:block; }
+  .bar{ height:100%; width:0%; background:var(--grad); transition:width .2s ease; }
+
+  .msg{
+    margin-top:16px; padding:12px 14px; border-radius:10px; font-size:.85rem; display:none;
+  }
+  .msg.show{ display:block; }
+  .msg.err{ background:rgba(255,107,107,.12); border:1px solid var(--danger); color:var(--danger); }
+  .msg.ok{ background:rgba(78,220,140,.12); border:1px solid var(--ok); color:var(--ok); }
+
+  .result{
+    margin-top:14px; display:none; gap:8px;
+  }
+  .result.show{ display:flex; }
+  .result input{
+    flex:1; background:var(--surface-3); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:10px 12px; font-size:.82rem; font-family:monospace;
+  }
+  .copy-btn{
+    all:unset; background:var(--surface-3); border:1px solid var(--border); border-radius:10px;
+    padding:0 16px; font-size:.8rem; font-weight:700; cursor:pointer; color:var(--text);
+    display:flex; align-items:center;
+  }
+  .copy-btn:hover{ border-color:var(--purple); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1><span class="mz">Mz</span>Upload</h1>
+  <p class="sub">Manda uma imagem ou um áudio (até 25MB) e recebe o link.</p>
+
+  <div class="dropzone" id="dropzone">
+    <div class="icon">📁</div>
+    <p><strong>Clique</strong> ou arraste o arquivo aqui</p>
+    <p>Imagem (jpg, png, webp, gif) ou áudio (mp3, wav, ogg, webm)</p>
+  </div>
+  <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif,audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm">
+
+  <div class="file-info" id="file-info">
+    <div class="name" id="file-name"></div>
+    <div class="size" id="file-size"></div>
+  </div>
+
+  <button class="btn" id="upload-btn" disabled>Enviar</button>
+
+  <div class="bar-wrap" id="bar-wrap"><div class="bar" id="bar"></div></div>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="result" id="result">
+    <input type="text" id="result-url" readonly>
+    <button class="copy-btn" id="copy-btn">Copiar</button>
+  </div>
+</div>
+
+<script>
+  // Troca aqui pela URL do seu Worker depois do deploy
+  const WORKER_URL = 'https://mz-upload-worker.mzuploads.workers.dev';
+
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const uploadBtn = document.getElementById('upload-btn');
+  const barWrap = document.getElementById('bar-wrap');
+  const bar = document.getElementById('bar');
+  const msg = document.getElementById('msg');
+  const result = document.getElementById('result');
+  const resultUrl = document.getElementById('result-url');
+  const copyBtn = document.getElementById('copy-btn');
+
+  let selectedFile = null;
+
+  function formatSize(bytes){
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  }
+
+  function showMsg(text, type){
+    msg.textContent = text;
+    msg.className = 'msg show ' + type;
+  }
+
+  function selectFile(file){
+    if (!file) return;
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    fileInfo.classList.add('show');
+    uploadBtn.disabled = false;
+    msg.className = 'msg';
+    result.classList.remove('show');
+  }
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => selectFile(fileInput.files[0]));
+
+  ['dragenter','dragover'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); })
+  );
+  ['dragleave','drop'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); })
+  );
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) selectFile(file);
+  });
+
+  uploadBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    uploadBtn.disabled = true;
+    msg.className = 'msg';
+    result.classList.remove('show');
+    barWrap.classList.add('show');
+    bar.style.width = '10%';
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      bar.style.width = '50%';
+      const res = await fetch(WORKER_URL, { method: 'POST', body: formData });
+      const data = await res.json();
+      bar.style.width = '100%';
+
+      if (!res.ok) {
+        showMsg(data.error || 'Erro ao enviar.', 'err');
+        uploadBtn.disabled = false;
+        return;
+      }
+
+      showMsg('Upload feito!', 'ok');
+      resultUrl.value = data.url;
+      result.classList.add('show');
+    } catch (e) {
+      showMsg('Não consegui conectar. Tenta de novo.', 'err');
+    } finally {
+      uploadBtn.disabled = false;
+      setTimeout(() => barWrap.classList.remove('show'), 600);
+    }
+  });
+
+  copyBtn.addEventListener('click', () => {
+    resultUrl.select();
+    navigator.clipboard.writeText(resultUrl.value);
+    copyBtn.textContent = 'Copiado!';
+    setTimeout(() => copyBtn.textContent = 'Copiar', 1500);
+  });
+</script>
+
+</body>
+</html>
