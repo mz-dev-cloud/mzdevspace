@@ -383,6 +383,16 @@
             <input type="number" id="rec-sort_order" value="0">
 
             <div class="checkbox-row">
+              <input type="checkbox" id="rec-password-protected">
+              <label for="rec-password-protected">🔒 Pedir senha pra acessar (só quem digitar certo abre o link)</label>
+            </div>
+
+            <div id="rec-password-field" style="display:none;">
+              <label for="rec-access-password">Senha de acesso</label>
+              <input type="text" id="rec-access-password" placeholder="Ex: mz2026">
+            </div>
+
+            <div class="checkbox-row">
               <input type="checkbox" id="rec-published">
               <label for="rec-published">Publicar imediatamente (visível pra todo mundo no site)</label>
             </div>
@@ -697,6 +707,12 @@
   const recCancelEditBtn = document.getElementById('rec-cancel-edit-btn');
   const recListEl = document.getElementById('rec-list');
   const recCountEl = document.getElementById('rec-count');
+  const recPasswordProtected = document.getElementById('rec-password-protected');
+  const recPasswordField = document.getElementById('rec-password-field');
+
+  recPasswordProtected.addEventListener('change', () => {
+    recPasswordField.style.display = recPasswordProtected.checked ? 'block' : 'none';
+  });
 
   async function loadRecursosList(){
     recListEl.innerHTML = '<div class="empty-state">Carregando...</div>';
@@ -726,6 +742,7 @@
           <p>${escapeHtml(item.description)}</p>
         </div>
         <span class="badge off" style="text-transform:capitalize;">${escapeHtml(item.category)}</span>
+        ${item.password_protected ? '<span class="badge off">🔒 Senha</span>' : ''}
         <span class="badge ${item.published ? 'on' : 'off'}">${item.published ? 'Publicado' : 'Rascunho'}</span>
         <div class="item-actions">
           <button class="icon-btn toggle-btn" title="${item.published ? 'Despublicar' : 'Publicar'}">
@@ -779,6 +796,9 @@
     document.getElementById('rec-gradient_from').value = record.gradient_from;
     document.getElementById('rec-gradient_to').value = record.gradient_to;
     document.getElementById('rec-sort_order').value = record.sort_order;
+    recPasswordProtected.checked = !!record.password_protected;
+    document.getElementById('rec-access-password').value = record.access_password || '';
+    recPasswordField.style.display = record.password_protected ? 'block' : 'none';
     document.getElementById('rec-published').checked = record.published;
     recCancelEditBtn.style.display = 'inline-flex';
     recSaveBtn.textContent = 'Salvar alterações';
@@ -794,6 +814,9 @@
     document.getElementById('rec-button_label').value = 'Acessar';
     document.getElementById('rec-gradient_from').value = '#9B5CFF';
     document.getElementById('rec-gradient_to').value = '#4EA1FF';
+    recPasswordProtected.checked = false;
+    document.getElementById('rec-access-password').value = '';
+    recPasswordField.style.display = 'none';
     recCancelEditBtn.style.display = 'none';
     recSaveBtn.textContent = 'Salvar recurso';
   }
@@ -816,6 +839,10 @@
       gradient_from: document.getElementById('rec-gradient_from').value,
       gradient_to: document.getElementById('rec-gradient_to').value,
       sort_order: parseInt(document.getElementById('rec-sort_order').value, 10) || 0,
+      password_protected: recPasswordProtected.checked,
+      access_password: recPasswordProtected.checked
+        ? (document.getElementById('rec-access-password').value.trim() || null)
+        : null,
       published: document.getElementById('rec-published').checked
     };
 
