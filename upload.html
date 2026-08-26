@@ -54,6 +54,17 @@
   .btn:hover{ filter:brightness(1.08); }
   .btn:disabled{ opacity:.55; cursor:not-allowed; }
 
+  .btn-secondary{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    font-weight:700; font-size:.85rem; padding:12px 20px; border-radius:100px;
+    background:transparent; color:var(--text); cursor:pointer; margin-top:10px; transition:.2s ease;
+    border:1px solid var(--border); text-decoration:none;
+  }
+  .btn-secondary:hover{ border-color:var(--purple); color:var(--purple); }
+
+  .actions-row{ display:flex; gap:10px; margin-top:10px; }
+  .actions-row .btn-secondary{ margin-top:0; }
+
   .bar-wrap{ height:6px; background:var(--surface-3); border-radius:100px; margin-top:14px; overflow:hidden; display:none; }
   .bar-wrap.show{ display:block; }
   .bar{ height:100%; width:0%; background:var(--grad); transition:width .2s ease; }
@@ -109,6 +120,11 @@
     <input type="text" id="result-url" readonly>
     <button class="copy-btn" id="copy-btn">Copiar</button>
   </div>
+
+  <div class="actions-row">
+    <button class="btn-secondary" id="restart-btn">Reiniciar</button>
+    <a class="btn-secondary" id="home-btn" href="/">Página inicial</a>
+  </div>
 </div>
 
 <script>
@@ -127,6 +143,7 @@
   const result = document.getElementById('result');
   const resultUrl = document.getElementById('result-url');
   const copyBtn = document.getElementById('copy-btn');
+  const restartBtn = document.getElementById('restart-btn');
 
   let selectedFile = null;
 
@@ -148,8 +165,8 @@
     fileSize.textContent = formatSize(file.size);
     fileInfo.classList.add('show');
     uploadBtn.disabled = false;
-    msg.className = 'msg';
-    result.classList.remove('show');
+    // O link e a mensagem de um envio anterior permanecem visíveis
+    // até o usuário clicar em "Reiniciar" (ou recarregar a página).
   }
 
   dropzone.addEventListener('click', () => fileInput.click());
@@ -170,8 +187,6 @@
     if (!selectedFile) return;
 
     uploadBtn.disabled = true;
-    msg.className = 'msg';
-    result.classList.remove('show');
     barWrap.classList.add('show');
     bar.style.width = '10%';
 
@@ -206,6 +221,11 @@
     navigator.clipboard.writeText(resultUrl.value);
     copyBtn.textContent = 'Copiado!';
     setTimeout(() => copyBtn.textContent = 'Copiar', 1500);
+  });
+
+  // Reinicia a página inteira (limpa arquivo selecionado, link anterior e mensagens)
+  restartBtn.addEventListener('click', () => {
+    window.location.reload();
   });
 </script>
 
