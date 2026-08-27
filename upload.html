@@ -76,20 +76,28 @@
   .msg.err{ background:rgba(255,107,107,.12); border:1px solid var(--danger); color:var(--danger); }
   .msg.ok{ background:rgba(78,220,140,.12); border:1px solid var(--ok); color:var(--ok); }
 
-  .result{
-    margin-top:14px; display:none; gap:8px;
+  .result-list{
+    margin-top:14px; display:flex; flex-direction:column; gap:8px;
   }
-  .result.show{ display:flex; }
-  .result input{
+  .result-item{
+    display:flex; gap:8px; animation: fadein .25s ease;
+  }
+  @keyframes fadein{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
+  .result-item input{
     flex:1; background:var(--surface-3); border:1px solid var(--border); color:var(--text);
     border-radius:10px; padding:10px 12px; font-size:.82rem; font-family:monospace;
   }
   .copy-btn{
     all:unset; background:var(--surface-3); border:1px solid var(--border); border-radius:10px;
     padding:0 16px; font-size:.8rem; font-weight:700; cursor:pointer; color:var(--text);
-    display:flex; align-items:center;
+    display:flex; align-items:center; flex-shrink:0;
   }
   .copy-btn:hover{ border-color:var(--purple); }
+  .result-label{
+    color:var(--text-dim); font-size:.78rem; font-weight:600; margin-top:16px; margin-bottom:2px;
+    display:none;
+  }
+  .result-label.show{ display:block; }
 </style>
 </head>
 <body>
@@ -116,10 +124,8 @@
 
   <div class="msg" id="msg"></div>
 
-  <div class="result" id="result">
-    <input type="text" id="result-url" readonly>
-    <button class="copy-btn" id="copy-btn">Copiar</button>
-  </div>
+  <div class="result-label" id="result-label">Links enviados</div>
+  <div class="result-list" id="result-list"></div>
 
   <div class="actions-row">
     <button class="btn-secondary" id="restart-btn">Reiniciar</button>
@@ -140,9 +146,8 @@
   const barWrap = document.getElementById('bar-wrap');
   const bar = document.getElementById('bar');
   const msg = document.getElementById('msg');
-  const result = document.getElementById('result');
-  const resultUrl = document.getElementById('result-url');
-  const copyBtn = document.getElementById('copy-btn');
+  const resultLabel = document.getElementById('result-label');
+  const resultList = document.getElementById('result-list');
   const restartBtn = document.getElementById('restart-btn');
 
   let selectedFile = null;
@@ -165,8 +170,37 @@
     fileSize.textContent = formatSize(file.size);
     fileInfo.classList.add('show');
     uploadBtn.disabled = false;
-    // O link e a mensagem de um envio anterior permanecem visíveis
+    // O histórico de links de envios anteriores permanece visível
     // até o usuário clicar em "Reiniciar" (ou recarregar a página).
+  }
+
+  function addResultLink(url){
+    resultLabel.classList.add('show');
+
+    const item = document.createElement('div');
+    item.className = 'result-item';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.readOnly = true;
+    input.value = url;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copiar';
+    btn.addEventListener('click', () => {
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      btn.textContent = 'Copiado!';
+      setTimeout(() => btn.textContent = 'Copiar', 1500);
+    });
+
+    item.appendChild(input);
+    item.appendChild(btn);
+    // Adiciona no topo: o link mais recente fica sempre visível primeiro,
+    // os anteriores continuam na lista logo abaixo.
+    resultList.prepend(item);
   }
 
   dropzone.addEventListener('click', () => fileInput.click());
@@ -206,21 +240,13 @@
       }
 
       showMsg('Upload feito!', 'ok');
-      resultUrl.value = data.url;
-      result.classList.add('show');
+      addResultLink(data.url);
     } catch (e) {
       showMsg('Não consegui conectar. Tenta de novo.', 'err');
     } finally {
       uploadBtn.disabled = false;
       setTimeout(() => barWrap.classList.remove('show'), 600);
     }
-  });
-
-  copyBtn.addEventListener('click', () => {
-    resultUrl.select();
-    navigator.clipboard.writeText(resultUrl.value);
-    copyBtn.textContent = 'Copiado!';
-    setTimeout(() => copyBtn.textContent = 'Copiar', 1500);
   });
 
   // Reinicia a página inteira (limpa arquivo selecionado, link anterior e mensagens)
