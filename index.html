@@ -30,6 +30,11 @@
     --text-dim:#5F5D78;
     --shadow: 0 20px 50px -22px rgba(78,161,255,.35);
   }
+  /* Cor de destaque (igual à página de Recursos): roxo / rosa / verde */
+  html[data-accent="pink"]{ --purple:#FF4FA3; --blue:#FF9AD5; }
+  html[data-accent="green"]{ --purple:#34D399; --blue:#22C55E; }
+  html[data-accent="pink"]:not([data-theme="light"]){ --shadow: 0 20px 50px -18px rgba(255,79,163,.4); }
+  html[data-accent="green"]:not([data-theme="light"]){ --shadow: 0 20px 50px -18px rgba(52,211,153,.4); }
   *{box-sizing:border-box; margin:0; padding:0; min-width:0;}
   html{scroll-behavior:smooth;}
   body{
@@ -92,6 +97,48 @@
   }
   .theme-toggle button svg{ width:16px; height:16px; fill:currentColor; }
   .theme-toggle button.active{ background:var(--grad); color:#fff; }
+  .theme-btn{
+    all:unset; display:flex; align-items:center; gap:10px; cursor:pointer; width:100%;
+    background:var(--surface); border:1px solid var(--border); border-radius:100px;
+    padding:10px 16px; font-size:.85rem; font-weight:600; color:var(--text); transition:.25s ease;
+    margin-top:10px; box-sizing:border-box;
+  }
+  .theme-btn:hover{ border-color:var(--purple); }
+  .theme-dot{ width:14px; height:14px; border-radius:50%; background:var(--grad); flex-shrink:0; }
+
+  /* ---------- PLAYER DE MÚSICA (igual à página de Recursos) ---------- */
+  .player{
+    position:fixed; bottom:22px; right:22px; z-index:250;
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:100px;
+    padding:10px 16px 10px 10px; box-shadow:var(--shadow);
+  }
+  .player-btn{
+    all:unset; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--grad); color:#fff; cursor:pointer; flex-shrink:0;
+  }
+  .player-btn svg{ width:16px; height:16px; fill:currentColor; }
+  .player-restart{
+    all:unset; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--border); color:var(--text-dim); cursor:pointer; flex-shrink:0; transition:.2s ease;
+  }
+  .player-restart:hover{ color:var(--text); border-color:var(--purple); }
+  .player-restart svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.4; }
+  .player-label{ font-size:.78rem; color:var(--text-dim); font-weight:600; white-space:nowrap; }
+  .player.hidden{ display:none; }
+
+  .sound-prompt{
+    position:fixed; bottom:80px; right:22px; z-index:250;
+    background:var(--surface-2); border:1px solid var(--purple); border-radius:14px;
+    padding:12px 16px; font-size:.82rem; color:var(--text); box-shadow:var(--shadow);
+    cursor:pointer; display:none; max-width:220px;
+  }
+  .sound-prompt.show{ display:block; }
+
+  @media (max-width:700px){
+    .player{ right:14px; bottom:14px; }
+    .sound-prompt{ right:14px; bottom:72px; }
+  }
 
   main{ width:100%; max-width:1400px; margin:0 auto; padding:0 60px; }
   section{ padding:100px 0; max-width:820px; width:100%; margin:0 auto; }
@@ -220,6 +267,10 @@
         
       </button>
     </div>
+    <button class="theme-btn" id="accent-btn">
+      <span class="theme-dot"></span>
+      <span id="accent-label">Tema roxo</span>
+    </button>
   </div>
 </aside>
 
@@ -275,6 +326,18 @@
     </a>
   </div>
 </footer>
+
+<div class="sound-prompt" id="sound-prompt">🔈 Clique aqui pra ativar o som da música</div>
+<div class="player hidden" id="player">
+  <button class="player-btn" id="play-pause-btn" aria-label="Pausar">
+    <svg id="icon-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    <svg id="icon-play" viewBox="0 0 24 24" style="display:none;"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <button class="player-restart" id="music-restart-btn" aria-label="Voltar do início" title="Voltar do início">
+    <svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <span class="player-label">Tocando agora</span>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -352,6 +415,25 @@
   }
   btnDark.addEventListener('click', () => setTheme('dark'));
   btnLight.addEventListener('click', () => setTheme('light'));
+
+  // ---------- TEMA POR COR (roxo / rosa / verde, igual à página de Recursos) ----------
+  const accents = [
+    { key: 'purple', label: 'Tema roxo' },
+    { key: 'pink', label: 'Tema rosa' },
+    { key: 'green', label: 'Tema verde' }
+  ];
+  let accentIndex = 0;
+  const accentBtn = document.getElementById('accent-btn');
+  const accentLabel = document.getElementById('accent-label');
+  function applyAccent(){
+    html.setAttribute('data-accent', accents[accentIndex].key);
+    accentLabel.textContent = accents[accentIndex].label;
+  }
+  accentBtn.addEventListener('click', () => {
+    accentIndex = (accentIndex + 1) % accents.length;
+    applyAccent();
+  });
+  applyAccent();
 
   const sidebar = document.getElementById('sidebar');
   const menuBtn = document.getElementById('menu-btn');
@@ -445,6 +527,63 @@
     initFlakes();
     tick();
     window.addEventListener('resize', () => { resize(); initFlakes(); });
+  })();
+
+  // ---------- MÚSICA (mesma faixa e mesmo player da página de Recursos) ----------
+  (function(){
+    const player = document.getElementById('player');
+    const soundPrompt = document.getElementById('sound-prompt');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const musicRestartBtn = document.getElementById('music-restart-btn');
+    const iconPlay = document.getElementById('icon-play');
+    const iconPause = document.getElementById('icon-pause');
+    let audio = null;
+
+    function setPlayIcon(isPlaying){
+      iconPlay.style.display = isPlaying ? 'none' : 'block';
+      iconPause.style.display = isPlaying ? 'block' : 'none';
+      playPauseBtn.setAttribute('aria-label', isPlaying ? 'Pausar' : 'Tocar');
+    }
+
+    async function initMusic(){
+      const { data, error } = await sb.from('recursos_settings').select('music_url').eq('id', 1).single();
+      if (error || !data || !data.music_url) return; // sem música configurada, sem player
+
+      audio = new Audio(data.music_url);
+      audio.loop = true;
+      player.classList.remove('hidden');
+
+      audio.play().then(() => {
+        setPlayIcon(true);
+      }).catch(() => {
+        // navegador bloqueou autoplay com som — pede 1 clique
+        setPlayIcon(false);
+        soundPrompt.classList.add('show');
+      });
+
+      soundPrompt.addEventListener('click', () => {
+        audio.play().then(() => setPlayIcon(true)).catch(() => {});
+        soundPrompt.classList.remove('show');
+      });
+
+      playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play().then(() => setPlayIcon(true)).catch(() => {});
+          soundPrompt.classList.remove('show');
+        } else {
+          audio.pause();
+          setPlayIcon(false);
+        }
+      });
+
+      musicRestartBtn.addEventListener('click', () => {
+        audio.currentTime = 0;
+        if (audio.paused) {
+          audio.play().then(() => setPlayIcon(true)).catch(() => {});
+        }
+      });
+    }
+    initMusic();
   })();
 </script>
 
