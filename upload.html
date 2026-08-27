@@ -129,12 +129,12 @@
 
   <div class="actions-row">
     <button class="btn-secondary" id="restart-btn">Reiniciar</button>
-    <a class="btn-secondary" id="home-btn" href="https://mz-dev-cloud.github.io/mzdevspace/index.html">Página inicial</a>
+    <a class="btn-secondary" id="home-btn" href="https://mz-dev-cloud.github.io/mzdevspace/">Página inicial</a>
   </div>
 </div>
 
 <script>
-  // Troca aqui pela URL do seu Worker depois do deploy
+  
   const WORKER_URL = 'https://mz-upload-worker.mzuploads.workers.dev/upload';
 
   const dropzone = document.getElementById('dropzone');
@@ -170,8 +170,7 @@
     fileSize.textContent = formatSize(file.size);
     fileInfo.classList.add('show');
     uploadBtn.disabled = false;
-    // O histórico de links de envios anteriores permanece visível
-    // até o usuário clicar em "Reiniciar" (ou recarregar a página).
+
   }
 
   function addResultLink(url){
@@ -198,8 +197,7 @@
 
     item.appendChild(input);
     item.appendChild(btn);
-    // Adiciona no topo: o link mais recente fica sempre visível primeiro,
-    // os anteriores continuam na lista logo abaixo.
+
     resultList.prepend(item);
   }
 
@@ -249,7 +247,7 @@
     }
   });
 
-  // Reinicia a página inteira (limpa arquivo selecionado, link anterior e mensagens)
+
   restartBtn.addEventListener('click', () => {
     window.location.reload();
   });
