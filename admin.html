@@ -211,6 +211,7 @@
     <div class="brand"><span class="mz">Mz</span>DevSpace <span style="color:var(--text-dim); font-weight:500;">· admin</span></div>
     <div class="topbar-actions">
       <span class="who" id="who"></span>
+      <button class="btn btn-ghost btn-sm" onclick="ativarNotifAdmin()">🔔 Ativar notificações</button>
       <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
     </div>
   </header>
@@ -1068,6 +1069,37 @@
     if (error) { showToast('Erro: ' + error.message); return; }
     showToast('Apagado.');
     loadGruposList();
+  }
+
+  // ========================================================
+  // ================  PUSH: NOTIFICAÇÃO ADMIN  =============
+  // ========================================================
+  const VAPID_PUBLIC = 'BPCqFWshCQ9X9mRxcwh4JfIp1NFtvn0JhniR-f250nAeQkJZ-dk32O-vEL13U37AFz-ZCnRazC7I50fOkAuTQ50';
+  function urlB64(b64){
+    const p = '='.repeat((4 - b64.length % 4) % 4);
+    const s = (b64 + p).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(s);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  async function ativarNotifAdmin(){
+    if (!('serviceWorker' in navigator)) { showToast('Navegador não suporta.'); return; }
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { showToast('Permissão negada.'); return; }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64(VAPID_PUBLIC)
+      });
+      const j = sub.toJSON();
+      const { error } = await sb.from('push_subscriptions').insert({
+        endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, role: 'admin'
+      });
+      showToast(error ? 'Erro: ' + error.message : 'Notificações ativadas!');
+    } catch (err) {
+      showToast('Erro: ' + err.message);
+    }
   }
 
   checkSession();
