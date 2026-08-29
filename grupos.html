@@ -498,6 +498,7 @@
           <code id="idBoxValue"></code>
           <button type="button" class="id-copy-btn" id="idCopyBtn">Copiar</button>
         </div>
+        <button type="button" class="id-copy-btn" id="notifBtn" style="margin-top:8px;">🔔 Avisar quando aprovar</button>
       </div>
     </form>
   </div>
@@ -639,6 +640,7 @@
   const charCount = document.getElementById("charCount");
   descEl.addEventListener("input", () => charCount.textContent = descEl.value.length);
 
+  let newId;
   const form = document.getElementById("groupForm");
   const submitBtn = document.getElementById("submitBtn");
   const formMsg = document.getElementById("formMsg");
@@ -653,7 +655,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = "Enviando...";
 
-    const newId = (crypto.randomUUID && crypto.randomUUID()) || null;
+    newId = (crypto.randomUUID && crypto.randomUUID()) || null;
 
     const payload = {
       nome_grupo: document.getElementById("nome_grupo").value.trim(),
@@ -780,6 +782,37 @@
     sidebarEl.classList.contains("open") ? closeSidebar() : openSidebar();
   });
   sidebarOverlay.addEventListener("click", closeSidebar);
+
+  // ---------- push: avisar quando aprovar ----------
+  const VAPID_PUBLIC = 'BPCqFWshCQ9X9mRxcwh4JfIp1NFtvn0JhniR-f250nAeQkJZ-dk32O-vEL13U37AFz-ZCnRazC7I50fOkAuTQ50';
+  function urlB64(b64){
+    const p = '='.repeat((4 - b64.length % 4) % 4);
+    const s = (b64 + p).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(s);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  document.getElementById('notifBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('notifBtn');
+    if (!newId) return;
+    if (!('serviceWorker' in navigator)) { alert('Navegador não suporta.'); return; }
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { alert('Permissão negada.'); return; }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64(VAPID_PUBLIC)
+      });
+      const j = sub.toJSON();
+      const { error } = await supa.from('push_subscriptions').insert({
+        endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, role: 'user', grupo_id: newId
+      });
+      btn.textContent = error ? 'Erro ao ativar' : 'Você será avisado ✓';
+    } catch (err) {
+      btn.textContent = 'Erro ao ativar';
+    }
+  });
 </script>
 </body>
 </html>
