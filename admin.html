@@ -1085,7 +1085,7 @@
   async function ativarNotifAdmin(){
     if (!('serviceWorker' in navigator)) { showToast('Navegador não suporta.'); return; }
     try {
-      const reg = await navigator.serviceWorker.register('/sw.js');
+      const reg = await navigator.serviceWorker.register('sw.js');
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') { showToast('Permissão negada.'); return; }
       const sub = await reg.pushManager.subscribe({
