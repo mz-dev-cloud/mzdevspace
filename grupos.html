@@ -797,7 +797,7 @@
     if (!newId) return;
     if (!('serviceWorker' in navigator)) { alert('Navegador não suporta.'); return; }
     try {
-      const reg = await navigator.serviceWorker.register('/sw.js');
+      const reg = await navigator.serviceWorker.register('sw.js');
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') { alert('Permissão negada.'); return; }
       const sub = await reg.pushManager.subscribe({
