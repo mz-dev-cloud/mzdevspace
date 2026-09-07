@@ -1083,21 +1083,36 @@
   }
 
   async function ativarNotifAdmin(){
-    if (!('serviceWorker' in navigator)) { showToast('Navegador não suporta.'); return; }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { showToast('Navegador não suporta.'); return; }
+    if (Notification.permission === 'denied') {
+      showToast('Notificações bloqueadas nas configurações do navegador.');
+      return;
+    }
     try {
-      const reg = await navigator.serviceWorker.register('sw.js');
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') { showToast('Permissão negada.'); return; }
+
+      const reg = await navigator.serviceWorker.register('sw.js');
+      await navigator.serviceWorker.ready;
+
+      // Sempre gera uma inscrição nova: evita colidir com uma inscrição antiga
+      // (ex: se esse navegador já foi usado pra testar como "user").
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        try { await existing.unsubscribe(); } catch (e) { /* segue o jogo */ }
+      }
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlB64(VAPID_PUBLIC)
       });
       const j = sub.toJSON();
-      const { error } = await sb.from('push_subscriptions').insert({
+      const { error } = await sb.from('push_subscriptions').upsert({
         endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, role: 'admin'
-      });
+      }, { onConflict: 'endpoint' });
+      if (error) console.error('Erro ao ativar notificações admin:', error);
       showToast(error ? 'Erro: ' + error.message : 'Notificações ativadas!');
     } catch (err) {
+      console.error('Erro ao ativar notificações admin:', err);
       showToast('Erro: ' + err.message);
     }
   }
