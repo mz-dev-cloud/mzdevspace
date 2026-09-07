@@ -823,13 +823,17 @@
       const reg = await navigator.serviceWorker.register('sw.js');
       await navigator.serviceWorker.ready;
 
-      let sub = await reg.pushManager.getSubscription();
-      if (!sub) {
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlB64(VAPID_PUBLIC)
-        });
+      // Sempre gera uma inscrição nova: se esse navegador já tinha uma inscrição
+      // (por exemplo, de admin), cancela ela antes. Assim nunca colide com um
+      // endpoint que pertence a outro "papel" (admin x user).
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        try { await existing.unsubscribe(); } catch (e) { /* ignora, segue o jogo */ }
       }
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64(VAPID_PUBLIC)
+      });
 
       const j = sub.toJSON();
       // upsert em vez de insert: se esse navegador já tinha uma inscrição salva
