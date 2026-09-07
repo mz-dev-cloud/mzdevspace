@@ -795,22 +795,61 @@
   document.getElementById('notifBtn').addEventListener('click', async () => {
     const btn = document.getElementById('notifBtn');
     if (!newId) return;
-    if (!('serviceWorker' in navigator)) { alert('Navegador não suporta.'); return; }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Seu navegador não suporta notificações push.');
+      return;
+    }
+
+    // pede a permissão ANTES de qualquer "await": em vários navegadores (Safari
+    // principalmente), se você faz um await antes, o clique perde a validade
+    // e o pedido de permissão nem chega a aparecer pro usuário.
+    if (Notification.permission === 'denied') {
+      alert('Notificações estão bloqueadas pra este site no seu navegador. Ative nas configurações do navegador e tente de novo.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Ativando...';
+
     try {
-      const reg = await navigator.serviceWorker.register('sw.js');
       const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { alert('Permissão negada.'); return; }
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlB64(VAPID_PUBLIC)
-      });
+      if (perm !== 'granted') {
+        btn.disabled = false;
+        btn.textContent = '🔔 Avisar quando aprovar';
+        alert('Permissão negada.');
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.register('sw.js');
+      await navigator.serviceWorker.ready;
+
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64(VAPID_PUBLIC)
+        });
+      }
+
       const j = sub.toJSON();
-      const { error } = await supa.from('push_subscriptions').insert({
+      // upsert em vez de insert: se esse navegador já tinha uma inscrição salva
+      // (endpoint é único), isso atualiza o grupo_id em vez de dar erro de duplicado.
+      const { error } = await supa.from('push_subscriptions').upsert({
         endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, role: 'user', grupo_id: newId
-      });
-      btn.textContent = error ? 'Erro ao ativar' : 'Você será avisado ✓';
+      }, { onConflict: 'endpoint' });
+
+      if (error) {
+        console.error('Erro ao salvar inscrição de push:', error);
+        btn.textContent = 'Erro ao ativar';
+      } else {
+        btn.textContent = 'Você será avisado ✓';
+      }
     } catch (err) {
+      console.error('Erro ao ativar notificações:', err);
       btn.textContent = 'Erro ao ativar';
+      alert('Não deu pra ativar as notificações: ' + (err && err.message ? err.message : err));
+    } finally {
+      btn.disabled = false;
     }
   });
 </script>
